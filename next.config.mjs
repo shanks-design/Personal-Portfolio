@@ -17,9 +17,6 @@ const nextConfig = {
   // Enable compression
   compress: true,
   
-  // Optimize fonts
-  optimizeFonts: true,
-  
   // Enable React strict mode
   reactStrictMode: true,
   

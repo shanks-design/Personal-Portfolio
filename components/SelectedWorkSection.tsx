@@ -12,8 +12,8 @@ export default function SelectedWorkSection() {
   return (
     <section
       ref={ref}
-      className="w-screen bg-black rounded-t-[40px] px-4 sm:px-6 lg:px-8"
-      style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', marginTop: '0' }}
+      className="relative z-10 w-screen bg-black rounded-t-[40px] px-4 sm:px-6 lg:px-8"
+      style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', marginTop: '-120px' }}
     >
       <div className="max-w-[1080px] mx-auto pt-[120px]" style={{ paddingBottom: '120px' }}>
         <motion.h2

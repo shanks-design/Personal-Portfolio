@@ -5,15 +5,15 @@ import Image from 'next/image';
 
 export default function Hero() {
   return (
-    <section className="flex items-start justify-center px-4 sm:px-6 lg:px-8 pt-[184px] pb-0">
+    <section className="flex items-start justify-center px-4 sm:px-6 lg:px-8 pt-[184px] pb-[120px]">
       <div className="max-w-[1080px] mx-auto mt-0">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-[40px] leading-[64px] tracking-[-0.03em] text-gray-900 dark:text-white font-inter font-normal"
+          className="text-[40px] leading-[64px] tracking-[-0.03em] text-gray-900 font-inter font-normal"
         >
-          <span>Hello! I'm Atharva — a </span>
+          <span>Hello! I&apos;m Atharva — a </span>
           <span className="font-semibold">product designer</span>
           <span> based in </span>
           <span className="font-semibold">sf</span>
@@ -65,17 +65,17 @@ export default function Hero() {
                 element.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }
             }}
-            className="text-[36px] font-semibold text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors font-inter inline-block tracking-[-0.03em]"
+            className="text-[36px] font-semibold text-gray-900 hover:text-gray-700 transition-colors font-inter inline-block tracking-[-0.03em]"
             style={{ height: '48px', lineHeight: '48px' }}
           >
             Get in touch
           </a>
         </motion.div>
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 72 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-8 wallet-container cursor-pointer"
+          transition={{ duration: 0.7, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="relative z-20 mt-8 wallet-container cursor-pointer"
           style={{ width: '357px', height: '209px', position: 'relative' }}
         >
           <div className="wallet-logos absolute top-0 left-0 right-0 flex items-center justify-center pointer-events-none">
@@ -89,10 +89,12 @@ export default function Hero() {
           </div>
           <div className="absolute bottom-0 left-0 right-0 z-10">
             <Image 
-              src="/wallet.png" 
+              src="/new-wallet.png" 
               alt="Wallet" 
               width={357} 
               height={64} 
+              sizes="357px"
+              quality={92}
               className="inline-block"
               style={{ width: '357px', height: 'auto' }}
               priority

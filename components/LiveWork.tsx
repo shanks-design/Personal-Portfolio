@@ -34,13 +34,13 @@ export default function LiveWork() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
+    <section ref={ref} className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6 }}
-          className="text-3xl md:text-4xl font-medium text-gray-900 dark:text-white mb-12"
+          className="text-3xl md:text-4xl font-medium text-gray-900 mb-12"
         >
           Live Work
         </motion.h2>
@@ -59,13 +59,13 @@ export default function LiveWork() {
                 rel="noopener noreferrer"
                 className="block"
               >
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2 group-hover:underline">
+                <h3 className="text-xl font-medium text-gray-900 mb-2 group-hover:underline">
                   {project.title}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-3">
+                <p className="text-gray-600 mb-3">
                   {project.description}
                 </p>
-                <span className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                <span className="flex items-center gap-2 text-sm text-gray-500 group-hover:text-gray-900 transition-colors">
                   Live site
                   <ExternalLink size={14} />
                 </span>

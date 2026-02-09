@@ -57,9 +57,9 @@ export default function Experience() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6 }}
-          className="text-3xl md:text-4xl font-medium text-gray-900 dark:text-white mb-12"
+          className="text-3xl md:text-4xl font-medium text-gray-900 mb-12"
         >
-          I've been designing for a while...
+          I&apos;ve been designing for a while...
         </motion.h2>
         <div className="space-y-4">
           {experiences.map((exp, index) => (
@@ -68,17 +68,17 @@ export default function Experience() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden"
+              className="border border-gray-200 rounded-lg overflow-hidden"
             >
               <button
                 onClick={() => setExpanded(expanded === index ? null : index)}
-                className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+                className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
               >
                 <div>
-                  <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                  <h3 className="text-xl font-medium text-gray-900">
                     {exp.company}
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  <p className="text-sm text-gray-600 mt-1">
                     {exp.role}
                   </p>
                 </div>
@@ -99,7 +99,7 @@ export default function Experience() {
                     {exp.bullets.map((bullet, i) => (
                       <li
                         key={i}
-                        className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed"
+                        className="text-gray-600 text-sm leading-relaxed"
                       >
                         {bullet}
                       </li>
