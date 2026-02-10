@@ -1,6 +1,7 @@
 import Navigation from '@/components/Navigation';
 import Hero from '@/components/Hero';
 import SelectedWorkSection from '@/components/SelectedWorkSection';
+import AboutCanvas from '@/components/AboutCanvas';
 import LiveWork from '@/components/LiveWork';
 import Experience from '@/components/Experience';
 import FunStuff from '@/components/FunStuff';
@@ -12,6 +13,7 @@ export default function Home() {
       <Navigation />
       <Hero />
       <SelectedWorkSection />
+      <AboutCanvas />
       <LiveWork />
       <Experience />
       <FunStuff />
