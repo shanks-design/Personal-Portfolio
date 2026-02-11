@@ -2,7 +2,6 @@ import Navigation from '@/components/Navigation';
 import Hero from '@/components/Hero';
 import SelectedWorkSection from '@/components/SelectedWorkSection';
 import AboutCanvas from '@/components/AboutCanvas';
-import LiveWork from '@/components/LiveWork';
 import Experience from '@/components/Experience';
 import FunStuff from '@/components/FunStuff';
 import Contact from '@/components/Contact';
@@ -14,7 +13,6 @@ export default function Home() {
       <Hero />
       <SelectedWorkSection />
       <AboutCanvas />
-      <LiveWork />
       <Experience />
       <FunStuff />
       <Contact />

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 const CANVAS_WIDTH = 4000;
@@ -28,20 +29,30 @@ interface PolaroidItem {
   initialY: number;
   rotation: number;
   size: PolaroidSize;
+  fullPolaroidImage?: boolean;
 }
 
 const polaroids: PolaroidItem[] = [
+  // NOTE: "me" is rendered in the viewport layer, not on the canvas,
+  // but we keep this entry for completeness / potential future use.
   { id: 'me', label: 'Me :)', image: 'https://picsum.photos/seed/me/220/260', initialX: 42, initialY: 8, rotation: -7, size: 'medium' },
-  { id: 'climbing', label: 'Climbing', image: 'https://picsum.photos/seed/climb/220/260', initialX: 5, initialY: 32, rotation: 2, size: 'medium' },
-  { id: 'travelling', label: 'Travelling', image: 'https://picsum.photos/seed/travel/220/260', initialX: 38, initialY: 35, rotation: -1.5, size: 'medium' },
-  { id: 'cooking', label: 'Cooking', image: 'https://picsum.photos/seed/cook/220/260', initialX: 70, initialY: 60, rotation: 1.5, size: 'medium' },
-  { id: 'grass', label: 'Touching grass', image: 'https://picsum.photos/seed/grass/220/260', initialX: 8, initialY: 62, rotation: 2.5, size: 'large' },
-  { id: 'painting', label: 'Painting', image: 'https://picsum.photos/seed/paint/220/260', initialX: 72, initialY: 32, rotation: 1, size: 'large' },
-  { id: 'art', label: 'Watching art', image: 'https://picsum.photos/seed/art/220/260', initialX: 40, initialY: 62, rotation: -2, size: 'small' },
+
+  // Default layout tuned to match reference composition and angles
+  // Climbing: left of second text block
+  { id: 'climbing', label: 'Climbing', image: '/Climbing-photo-polo.png', initialX: 12, initialY: 62, rotation: -12, size: 'medium', fullPolaroidImage: true },
+  { id: 'travelling', label: 'Travelling', image: 'https://picsum.photos/seed/travel/220/260', initialX: 50, initialY: 38, rotation: -3, size: 'medium' },
+  { id: 'cooking', label: 'Cooking', image: '/Cooking-photo-polo.png', initialX: 59.75, initialY: 68.5, rotation: 20, size: 'medium', fullPolaroidImage: true },
+
+  { id: 'painting', label: 'Painting', image: '/Painting-photo-polo.png', initialX: 82, initialY: 40, rotation: 7, size: 'large', fullPolaroidImage: true },
+
+  { id: 'art', label: 'Watching art', image: '/Art-photo-polo.png', initialX: 50, initialY: 68, rotation: 13, size: 'small', fullPolaroidImage: true },
+  { id: 'left-of-art', label: 'Touching grass', image: '/Grass-photo-polo.png', initialX: 40, initialY: 71, rotation: -8, size: 'large', fullPolaroidImage: true },
 ];
 
 const GAP_POLAROID_TO_TEXT_PX = 24;
-const ME_POLAROID_VIEWPORT_CENTER_Y = 420 - POLAROID_SIZES.medium.height / 2 - GAP_POLAROID_TO_TEXT_PX;
+const ME_POLAROID_VIEWPORT_CENTER_Y = 344 - POLAROID_SIZES.medium.height / 2 - GAP_POLAROID_TO_TEXT_PX;
+// Default vertical placement for Travelling: 743px from top of the section.
+const TRAVELLING_DEFAULT_TOP = 743;
 
 function DraggablePolaroid({
   item,
@@ -105,9 +116,50 @@ function DraggablePolaroid({
   if (!position) return null;
 
   const dims = POLAROID_SIZES[item.size];
-  const paddingX = (dims.width - dims.imageWidth) / 2;
-  const paddingTop = 8;
-  const paddingBottom = dims.height - paddingTop - dims.imageHeight - 28;
+  const paddingX = (dims.width - dims.imageWidth) / 2 - 2;
+  const paddingTop = item.size === 'large' ? paddingX : 6;
+  const labelSpace = item.size === 'large' ? 54 : 28;
+  const paddingBottom = dims.height - paddingTop - dims.imageHeight - labelSpace;
+
+  if (item.fullPolaroidImage) {
+    return (
+      <motion.div
+        className="absolute cursor-grab active:cursor-grabbing touch-none select-none"
+        style={{
+          left: position.x,
+          top: position.y,
+          transform: `translate(-50%, -50%)`,
+        }}
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        dragConstraints={viewportBoundsRef}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={(e, info) => {
+          handleDragEnd(e, info);
+          setIsDragging(false);
+        }}
+        whileDrag={{ scale: 1.02, zIndex: 50 }}
+        initial={false}
+      >
+        <div style={{ transform: `rotate(${item.rotation}deg)` }}>
+          <div
+            className="rounded-lg origin-center overflow-hidden"
+            style={{ width: dims.width, height: dims.height }}
+          >
+            <img
+              src={item.image}
+              alt={item.label}
+              width={dims.width}
+              height={dims.height}
+              className="w-full h-full object-cover block"
+              draggable={false}
+            />
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -115,7 +167,7 @@ function DraggablePolaroid({
       style={{
         left: position.x,
         top: position.y,
-        transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
+        transform: `translate(-50%, -50%)`,
       }}
       drag
       dragMomentum={false}
@@ -130,8 +182,11 @@ function DraggablePolaroid({
       initial={false}
     >
       <div
-        className="rounded-lg"
-        style={{
+        style={{ transform: `rotate(${item.rotation}deg)` }}
+      >
+        <div
+          className="rounded-lg"
+          style={{
           width: dims.width,
           height: dims.height,
           padding: `${paddingTop}px ${paddingX}px ${paddingBottom}px`,
@@ -151,16 +206,20 @@ function DraggablePolaroid({
           />
         </div>
         <p
-          className="text-center text-gray-800 font-medium px-1"
+          className="text-center text-gray-800 font-bold px-1"
           style={{
-            fontFamily: 'var(--font-inter)',
+            fontFamily: 'var(--font-caveat)',
+            fontWeight: 700,
             ...(item.size === 'small'
-              ? { fontSize: '10.08px', paddingTop: 8, paddingBottom: 8, margin: 0 }
-              : { fontSize: '14px', marginTop: 12 }),
+              ? { fontSize: '17px', paddingTop: 3, paddingBottom: 8, margin: 0 }
+              : item.size === 'large'
+                ? { fontSize: '31px', lineHeight: '36px', marginTop: 12 }
+                : { fontSize: '24px', paddingTop: 3, paddingBottom: 12, margin: 0 }),
           }}
         >
           {item.label}
         </p>
+      </div>
       </div>
     </motion.div>
   );
@@ -177,6 +236,12 @@ export default function AboutCanvas() {
   const lastPointer = useRef({ x: 0, y: 0 });
   const [mePolaroidPosition, setMePolaroidPosition] = useState<{ x: number; y: number } | null>(null);
   const mePolaroidRef = useRef<HTMLDivElement>(null);
+  const [travellingPolaroidPosition, setTravellingPolaroidPosition] = useState<{ x: number; y: number } | null>(null);
+  const travellingPolaroidRef = useRef<HTMLDivElement>(null);
+  const [climbingPolaroidPosition, setClimbingPolaroidPosition] = useState<{ x: number; y: number } | null>(null);
+  const climbingPolaroidRef = useRef<HTMLDivElement>(null);
+  const [paintingPolaroidPosition, setPaintingPolaroidPosition] = useState<{ x: number; y: number } | null>(null);
+  const paintingPolaroidRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = viewportRef.current;
@@ -237,15 +302,61 @@ export default function AboutCanvas() {
     });
   }, [viewportSize]);
 
+  const handleTravellingPolaroidDragEnd = useCallback(() => {
+    const el = travellingPolaroidRef.current;
+    const viewportEl = viewportRef.current;
+    if (!el || !viewportEl || !viewportSize) return;
+    const rect = el.getBoundingClientRect();
+    const viewportRect = viewportEl.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2 - viewportRect.left;
+    const centerY = rect.top + rect.height / 2 - viewportRect.top;
+    const halfW = POLAROID_SIZES.medium.width / 2;
+    const halfH = POLAROID_SIZES.medium.height / 2;
+    setTravellingPolaroidPosition({
+      x: Math.max(halfW, Math.min(viewportSize.width - halfW, centerX)),
+      y: Math.max(halfH, Math.min(viewportSize.height - halfH, centerY)),
+    });
+  }, [viewportSize]);
+
+  const handleClimbingPolaroidDragEnd = useCallback(() => {
+    const el = climbingPolaroidRef.current;
+    const viewportEl = viewportRef.current;
+    if (!el || !viewportEl || !viewportSize) return;
+    const rect = el.getBoundingClientRect();
+    const viewportRect = viewportEl.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2 - viewportRect.left;
+    const centerY = rect.top + rect.height / 2 - viewportRect.top;
+    const halfW = POLAROID_SIZES.medium.width / 2;
+    const halfH = POLAROID_SIZES.medium.height / 2;
+    setClimbingPolaroidPosition({
+      x: Math.max(halfW, Math.min(viewportSize.width - halfW, centerX)),
+      y: Math.max(halfH, Math.min(viewportSize.height - halfH, centerY)),
+    });
+  }, [viewportSize]);
+
+  const handlePaintingPolaroidDragEnd = useCallback(() => {
+    const el = paintingPolaroidRef.current;
+    const viewportEl = viewportRef.current;
+    if (!el || !viewportEl || !viewportSize) return;
+    const rect = el.getBoundingClientRect();
+    const viewportRect = viewportEl.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2 - viewportRect.left;
+    const centerY = rect.top + rect.height / 2 - viewportRect.top;
+    const halfW = POLAROID_SIZES.large.width / 2;
+    const halfH = POLAROID_SIZES.large.height / 2;
+    setPaintingPolaroidPosition({
+      x: Math.max(halfW, Math.min(viewportSize.width - halfW, centerX)),
+      y: Math.max(halfH, Math.min(viewportSize.height - halfH, centerY)),
+    });
+  }, [viewportSize]);
+
   return (
     <section
-      className="relative w-full bg-white overflow-hidden"
+      className="relative w-full bg-white overflow-hidden rounded-t-[40px]"
       style={{
         height: '1902px',
         marginTop: '120px',
         zIndex: 20,
-        borderTopLeftRadius: '40px',
-        borderTopRightRadius: '40px',
       }}
     >
       {/* Viewport: visible window, overflow hidden (Excalidraw-style) */}
@@ -260,7 +371,7 @@ export default function AboutCanvas() {
           className="absolute z-[6] cursor-grab active:cursor-grabbing touch-none select-none overflow-visible"
           style={{
             left: mePolaroidPosition ? mePolaroidPosition.x : '50%',
-            top: mePolaroidPosition ? mePolaroidPosition.y : 420 - POLAROID_SIZES.medium.height - GAP_POLAROID_TO_TEXT_PX,
+            top: mePolaroidPosition ? mePolaroidPosition.y : 344 - POLAROID_SIZES.medium.height - GAP_POLAROID_TO_TEXT_PX,
             width: POLAROID_SIZES.medium.width,
             height: POLAROID_SIZES.medium.height,
             transform: mePolaroidPosition
@@ -275,51 +386,164 @@ export default function AboutCanvas() {
           whileDrag={{ scale: 1.02, zIndex: 50 }}
         >
           <div
-            className="rounded-lg origin-center"
+            className="rounded-lg origin-center overflow-hidden"
             style={{
               width: POLAROID_SIZES.medium.width,
               height: POLAROID_SIZES.medium.height,
-              padding: `8px ${(POLAROID_SIZES.medium.width - POLAROID_SIZES.medium.imageWidth) / 2}px ${POLAROID_SIZES.medium.height - 8 - POLAROID_SIZES.medium.imageHeight - 28}px`,
-              backgroundColor: '#F2F1ED',
-              border: '1px solid #EBEAE6',
-              transform: 'rotate(-7deg)',
+              transform: 'rotate(7deg)',
             }}
           >
-            <div
-              className="overflow-hidden bg-gray-100 rounded-md mx-auto"
-              style={{ width: POLAROID_SIZES.medium.imageWidth, height: POLAROID_SIZES.medium.imageHeight }}
-            >
-              <img
-                src="https://picsum.photos/seed/me/220/260"
-                alt="Me"
-                className="w-full h-full object-cover"
-                draggable={false}
-              />
-            </div>
-            <p className="text-center text-gray-800 text-sm font-medium mt-3 px-1" style={{ fontFamily: 'var(--font-inter)' }}>
-              Me :)
-            </p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/me-photo-polo.png"
+              alt="Me"
+              width={POLAROID_SIZES.medium.width}
+              height={POLAROID_SIZES.medium.height}
+              className="w-full h-full object-cover block"
+              draggable={false}
+            />
           </div>
         </motion.div>
 
-        {/* Static text: viewport-relative so it's never cut off, 420px from top */}
+        {/* "Travelling" polaroid: draggable, centered below first text on first load/refresh */}
+        <motion.div
+          ref={travellingPolaroidRef}
+          className="absolute z-[6] cursor-grab active:cursor-grabbing touch-none select-none overflow-visible"
+          style={{
+            left: travellingPolaroidPosition ? travellingPolaroidPosition.x : '50%',
+            top: travellingPolaroidPosition ? travellingPolaroidPosition.y : TRAVELLING_DEFAULT_TOP,
+            width: POLAROID_SIZES.medium.width,
+            height: POLAROID_SIZES.medium.height,
+            transform: travellingPolaroidPosition
+              ? 'translate(-50%, -50%)'
+              : 'translate(-50%, 0)',
+          }}
+          drag
+          dragMomentum={false}
+          dragElastic={0}
+          dragConstraints={viewportRef}
+          onDragEnd={handleTravellingPolaroidDragEnd}
+          whileDrag={{ scale: 1.02, zIndex: 50 }}
+        >
+          <div
+            className="rounded-lg origin-center overflow-hidden"
+            style={{
+              width: POLAROID_SIZES.medium.width,
+              height: POLAROID_SIZES.medium.height,
+              transform: 'rotate(-6.5deg)',
+            }}
+          >
+            <img
+              src="/travelling-photo-polo.png"
+              alt="Travelling"
+              width={POLAROID_SIZES.medium.width}
+              height={POLAROID_SIZES.medium.height}
+              className="w-full h-full object-cover block"
+              draggable={false}
+            />
+          </div>
+        </motion.div>
+
+        {/* "Climbing" polaroid: draggable, left of second text on first load/refresh */}
+        <motion.div
+          ref={climbingPolaroidRef}
+          className="absolute z-[6] cursor-grab active:cursor-grabbing touch-none select-none overflow-visible"
+          style={{
+            left: climbingPolaroidPosition ? climbingPolaroidPosition.x : '16%',
+            top: climbingPolaroidPosition ? climbingPolaroidPosition.y : '50%', // 5% higher than original 55%
+            width: POLAROID_SIZES.medium.width,
+            height: POLAROID_SIZES.medium.height,
+            transform: climbingPolaroidPosition
+              ? 'translate(-50%, -50%)'
+              : 'translate(-50%, 0)',
+          }}
+          drag
+          dragMomentum={false}
+          dragElastic={0}
+          dragConstraints={viewportRef}
+          onDragEnd={handleClimbingPolaroidDragEnd}
+          whileDrag={{ scale: 1.02, zIndex: 50 }}
+        >
+          <div
+            className="rounded-lg origin-center overflow-hidden"
+            style={{
+              width: POLAROID_SIZES.medium.width,
+              height: POLAROID_SIZES.medium.height,
+              transform: 'rotate(25deg)',
+            }}
+          >
+            <img
+              src="/Climbing-photo-polo.png"
+              alt="Climbing"
+              width={POLAROID_SIZES.medium.width}
+              height={POLAROID_SIZES.medium.height}
+              className="w-full h-full object-cover block"
+              draggable={false}
+            />
+          </div>
+        </motion.div>
+
+        {/* "Painting" polaroid: draggable, right of second text on first load/refresh */}
+        <motion.div
+          ref={paintingPolaroidRef}
+          className="absolute z-[6] cursor-grab active:cursor-grabbing touch-none select-none overflow-visible"
+          style={{
+            left: paintingPolaroidPosition ? paintingPolaroidPosition.x : '84%',
+            top: paintingPolaroidPosition ? paintingPolaroidPosition.y : '44.5%',
+            width: POLAROID_SIZES.large.width,
+            height: POLAROID_SIZES.large.height,
+            transform: paintingPolaroidPosition
+              ? 'translate(-50%, -50%)'
+              : 'translate(-50%, 0)',
+          }}
+          drag
+          dragMomentum={false}
+          dragElastic={0}
+          dragConstraints={viewportRef}
+          onDragEnd={handlePaintingPolaroidDragEnd}
+          whileDrag={{ scale: 1.02, zIndex: 50 }}
+        >
+          <div
+            className="rounded-lg origin-center overflow-hidden"
+            style={{
+              width: POLAROID_SIZES.large.width,
+              height: POLAROID_SIZES.large.height,
+              transform: 'rotate(7deg)',
+            }}
+          >
+            <img
+              src="/Painting-photo-polo.png"
+              alt="Painting"
+              width={POLAROID_SIZES.large.width}
+              height={POLAROID_SIZES.large.height}
+              className="w-full h-full object-cover block"
+              draggable={false}
+            />
+          </div>
+        </motion.div>
+
+        {/* Static text: viewport-relative so it's never cut off, 344px from top */}
         <div
           className="absolute inset-0 z-[5] pointer-events-none"
           aria-hidden
         >
           <div
-            className="absolute text-gray-800 text-center max-w-[480px]"
+            className="absolute text-gray-800 text-center max-w-[660px]"
             style={{
               fontFamily: 'var(--font-inter), Inter, sans-serif',
               fontSize: '34px',
               lineHeight: '56px',
-              letterSpacing: '-0.04em',
+              letterSpacing: '-0.03em',
+              fontWeight: 400,
+              paddingTop: '10px',
+              paddingBottom: '48px',
               left: '50%',
-              top: '420px',
+              top: '344px',
               transform: 'translate(-50%, 0)',
             }}
           >
-            I find joy in <strong>crafting</strong> experiences that go beyond mere usability, creating <strong>connections</strong> between <strong>people</strong> and bringing ☀️ <strong>delight</strong> to the often dull digital world.
+            I enjoy designing interfaces that feel <span className="font-semibold">conversational,</span> turning complexity into clarity while balancing <span className="font-semibold">usability</span> with thoughtful{' '}
+            <Image src="/sparkle.png" alt="" width={32} height={32} className="inline-block align-middle" style={{ verticalAlign: 'middle', marginRight: '-2px' }} /> craft
           </div>
           <div
             className="absolute text-gray-800 text-center max-w-[480px]"
@@ -327,13 +551,15 @@ export default function AboutCanvas() {
               fontFamily: 'var(--font-inter), Inter, sans-serif',
               fontSize: '34px',
               lineHeight: '56px',
-              letterSpacing: '-0.04em',
+              letterSpacing: '-0.03em',
+              fontWeight: 400,
+              paddingTop: '10px',
               left: '50%',
-              top: '65%',
+              top: '62%', // ~20% less spacing vs previous 65%
               transform: 'translate(-50%, -50%)',
             }}
           >
-            When I am <strong>not designing</strong> I like to indulge in other forms of creation like cooking, writing, and ⛏️ <strong>Minecrafting</strong>
+            When I am not designing or doom scrolling, I like playing <span className="font-semibold">tennis,</span> Pokémon, hiking, cooking and <span className="font-semibold">brewing coffee</span>
           </div>
         </div>
 
@@ -376,10 +602,18 @@ export default function AboutCanvas() {
               onPointerCancel={handlePanEnd}
             />
 
-              {/* Polaroids: draggable on canvas */}
+              {/* Polaroids: draggable on canvas (excluding viewport-layer Me :), Travelling, Painting, Climbing) */}
               <div className="absolute inset-0 z-10 pointer-events-none">
                 <div className="absolute inset-0 pointer-events-auto">
-                  {polaroids.filter((item) => item.id !== 'me').map((item) => (
+                  {polaroids
+                    .filter(
+                      (item) =>
+                        item.id !== 'me' &&
+                        item.id !== 'travelling' &&
+                        item.id !== 'painting' &&
+                        item.id !== 'climbing',
+                    )
+                    .map((item) => (
                     <DraggablePolaroid
                       key={item.id}
                       item={item}

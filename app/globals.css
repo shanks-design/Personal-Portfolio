@@ -6,13 +6,9 @@
   --background: #ffffff;
   --foreground: #171717;
   --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-playpen: "Playpen Sans", cursive;
+  --font-caveat: "Caveat", cursive;
+  color-scheme: light;
 }
 
 body {
