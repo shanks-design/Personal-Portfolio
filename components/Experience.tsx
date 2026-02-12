@@ -82,8 +82,8 @@ export default function Experience() {
   return (
     <section
       ref={ref}
-      className="relative bg-black rounded-t-[40px] pb-20"
-      style={{ paddingTop: 72 }}
+      className="relative bg-black rounded-[40px]"
+      style={{ paddingTop: 72, paddingBottom: 120 }}
     >
       <div className="max-w-[1080px] mx-auto">
         <div className="mb-12">
@@ -95,7 +95,7 @@ export default function Experience() {
             style={{
               fontSize: '33px',
               lineHeight: '64px',
-              letterSpacing: '-4%',
+              letterSpacing: '-0.02em',
             }}
           >
             I&apos;ve been designing for a while...
@@ -254,7 +254,7 @@ export default function Experience() {
           ))}
         </div>
 
-        <div className="mt-24 mb-12">
+        <div className="mt-24" style={{ marginBottom: 32 }}>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -263,7 +263,7 @@ export default function Experience() {
             style={{
               fontSize: '33px',
               lineHeight: '64px',
-              letterSpacing: '-4%',
+              letterSpacing: '-0.02em',
             }}
           >
             Some fun stuff :)
