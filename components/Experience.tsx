@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import useSound from 'use-sound';
 interface Experience {
   company: string;
   role: string;
@@ -79,6 +80,9 @@ export default function Experience() {
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const musicAudioRef = useRef<HTMLAudioElement>(null);
+  const [loginButtonStage, setLoginButtonStage] = useState<'idle' | 'loading' | 'sent'>('idle');
+  const loginButtonTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [playClick] = useSound('/sounds/click-soft.mp3', { volume: 0.5 });
 
   const toggleMusicPlay = useCallback(() => {
     const audio = musicAudioRef.current;
@@ -114,6 +118,27 @@ export default function Experience() {
       return () => audio.removeEventListener('canplay', playWhenReady);
     }
   }, [currentTrackIndex]); // eslint-disable-line react-hooks/exhaustive-deps -- only run when track changes; musicPlaying used inside
+
+  // Login button stage cycle: idle → loading → sent → idle
+  useEffect(() => {
+    return () => {
+      if (loginButtonTimeoutRef.current) clearTimeout(loginButtonTimeoutRef.current);
+    };
+  }, []);
+
+  const startLoginLinkCycle = useCallback(() => {
+    if (loginButtonStage !== 'idle') return;
+    playClick();
+    setLoginButtonStage('loading');
+    if (loginButtonTimeoutRef.current) clearTimeout(loginButtonTimeoutRef.current);
+    loginButtonTimeoutRef.current = setTimeout(() => {
+      setLoginButtonStage('sent');
+      loginButtonTimeoutRef.current = setTimeout(() => {
+        setLoginButtonStage('idle');
+        loginButtonTimeoutRef.current = null;
+      }, 2000);
+    }, 750);
+  }, [loginButtonStage, playClick]);
 
   const toggleExpanded = (index: number) => {
     setExpanded((prev) => {
@@ -321,7 +346,7 @@ export default function Experience() {
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
-              className="shrink-0 bg-[#171717] hover:bg-[#1a1a1a] transition-colors cursor-default overflow-hidden"
+              className={`shrink-0 transition-colors cursor-default overflow-hidden bg-[#171717] ${i === 1 ? 'flex items-center justify-center' : 'hover:bg-[#1a1a1a]'}`}
               style={{
                 width: '488px',
                 height: '515px',
@@ -388,7 +413,7 @@ export default function Experience() {
                     <div className="flex items-center justify-center shrink-0 w-full" style={{ height: 20, marginBottom: 16 }}>
                       <p
                         className="text-center font-normal block m-0"
-                        style={{ fontSize: 20, lineHeight: 20, color: '#9C9C9C' }}
+                        style={{ fontSize: 20, lineHeight: 20, color: '#9C9C9C', letterSpacing: '-0.01em', paddingBottom: 2 }}
                       >
                         {MUSIC_TRACKS[currentTrackIndex].label}
                       </p>
@@ -464,6 +489,77 @@ export default function Experience() {
                     </div>
                     </div>
                   </div>
+                </div>
+              )}
+              {i === 1 && (
+                <div
+                  className="inline-flex items-center justify-center flex-none overflow-visible"
+                  style={{ width: 'max-content', height: 46, minHeight: 46, maxHeight: 46 }}
+                >
+                  <button
+                    type="button"
+                    disabled={loginButtonStage !== 'idle'}
+                    className="relative text-white font-semibold cursor-pointer transition-all inline-flex items-center justify-center w-full h-full hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:hover:brightness-100"
+                    style={{
+                      background: 'linear-gradient(180deg, #48A4FF 0%, #1577FE 100%)',
+                      boxShadow: '0px 6px 16px -2px rgba(0, 0, 0, 0.48), inset 0px 2px 0px 0px rgba(255, 255, 255, 0.32), 0px 3px 4px -2px rgba(0, 0, 0, 1)',
+                      fontSize: 18,
+                      lineHeight: 32,
+                      color: '#FFFFFF',
+                      letterSpacing: '-0.01em',
+                      paddingLeft: 22,
+                      paddingRight: 22,
+                      borderRadius: 14,
+                      border: '1px solid #176ee8',
+                      minWidth: 220,
+                    }}
+                    onClick={startLoginLinkCycle}
+                  >
+                    <span className="flex min-h-[32px] flex-1 items-center justify-center self-stretch overflow-hidden">
+                      <AnimatePresence mode="wait" initial={false}>
+                        {loginButtonStage === 'idle' && (
+                          <motion.span
+                            key="idle"
+                            className="inline-block"
+                            style={{ fontSize: 18, lineHeight: 32, letterSpacing: '-0.01em' }}
+                            initial={{ y: -12, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 12, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                          >
+                            Send me a login link
+                          </motion.span>
+                        )}
+                        {loginButtonStage === 'loading' && (
+                          <motion.span
+                            key="loading"
+                            className="inline-flex items-center justify-center"
+                            initial={{ y: -12, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 12, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                          >
+                            <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                              <path d="M12 2C12.5523 2 13 2.44772 13 3V6C13 6.55228 12.5523 7 12 7C11.4477 7 11 6.55228 11 6V3C11 2.44772 11.4477 2 12 2ZM12 17C12.5523 17 13 17.4477 13 18V21C13 21.5523 12.5523 22 12 22C11.4477 22 11 21.5523 11 21V18C11 17.4477 11.4477 17 12 17ZM22 12C22 12.5523 21.5523 13 21 13H18C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11H21C21.5523 11 22 11.4477 22 12ZM7 12C7 12.5523 6.55228 13 6 13H3C2.44772 13 2 12.5523 2 12C2 11.4477 2.44772 11 3 11H6C6.55228 11 7 11.4477 7 12ZM19.0711 19.0711C18.6805 19.4616 18.0474 19.4616 17.6569 19.0711L15.5355 16.9497C15.145 16.5592 15.145 15.9261 15.5355 15.5355C15.9261 15.145 16.5592 15.145 16.9497 15.5355L19.0711 17.6569C19.4616 18.0474 19.4616 18.6805 19.0711 19.0711ZM8.46447 8.46447C8.07394 8.85499 7.44078 8.85499 7.05025 8.46447L4.92893 6.34315C4.53841 5.95262 4.53841 5.31946 4.92893 4.92893C5.31946 4.53841 5.95262 4.53841 6.34315 4.92893L8.46447 7.05025C8.85499 7.44078 8.85499 8.07394 8.46447 8.46447ZM4.92893 19.0711C4.53841 18.6805 4.53841 18.0474 4.92893 17.6569L7.05025 15.5355C7.44078 15.145 8.07394 15.145 8.46447 15.5355C8.85499 15.9261 8.85499 16.5592 8.46447 16.9497L6.34315 19.0711C5.95262 19.4616 5.31946 19.4616 4.92893 19.0711ZM15.5355 8.46447C15.145 8.07394 15.145 7.44078 15.5355 7.05025L17.6569 4.92893C18.0474 4.53841 18.6805 4.53841 19.0711 4.92893C19.4616 5.31946 19.4616 5.95262 19.0711 6.34315L16.9497 8.46447C16.5592 8.85499 15.9261 8.85499 15.5355 8.46447Z" />
+                            </svg>
+                          </motion.span>
+                        )}
+                        {loginButtonStage === 'sent' && (
+                          <motion.span
+                            key="sent"
+                            className="inline-block"
+                            style={{ fontSize: 18, lineHeight: 32, letterSpacing: '-0.01em' }}
+                            initial={{ y: -12, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 12, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                          >
+                            login link sent!
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </span>
+                  </button>
                 </div>
               )}
             </div>
