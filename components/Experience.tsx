@@ -73,6 +73,248 @@ const MUSIC_TRACKS = [
   { src: '/upbeat-smooth-jazz.mp3', label: 'Upbeat Smooth Jazz' },
 ];
 
+// ─── App List ────────────────────────────────────────────────────────────────
+
+type App = {
+  id: string;
+  icon: string;
+  name: string;
+  description: string;
+  longDescription: string;
+  url: string;
+};
+
+const APPS: App[] = [
+  {
+    id: 'fnf',
+    icon: '/app-fnf.png',
+    name: 'Friday Night Funkin',
+    description: 'Coolest rhythm game on mobile',
+    longDescription: 'A rhythm game where you battle opponents in rap battles. Hit the arrows in time with the music to win. Features catchy beats, unique characters, and increasingly challenging songs across multiple weeks.',
+    url: 'https://friday-night-funkin.en.softonic.com/android',
+  },
+  {
+    id: 'roblox',
+    icon: '/app-roblox.png',
+    name: 'Roblox',
+    description: 'Play, create, connect',
+    longDescription: 'An online platform where millions of players come together to explore, create, and share experiences. Build your own games, play others\' creations, and connect with friends across an infinite universe of immersive worlds.',
+    url: 'https://www.roblox.com',
+  },
+  {
+    id: 'mariokart',
+    icon: '/app-mariokart.png',
+    name: 'Mario Kart',
+    description: 'Race around the world',
+    longDescription: 'Race against friends and rivals on iconic tracks from across the Mushroom Kingdom and beyond. Use power-ups, master drift boosts, and compete in cups to become the ultimate champion.',
+    url: 'https://mariokarttour.com',
+  },
+  {
+    id: 'gungeon',
+    icon: '/app-gungeon.png',
+    name: 'Exit the Gungeon',
+    description: 'A bullet hell dungeon climber',
+    longDescription: 'A bullet hell dungeon climber where you fight through an ever-changing series of floors full of increasingly difficult enemies. Master the art of dodging, collect powerful guns, and find your way out of the Gungeon.',
+    url: 'https://exitthegungeon.com',
+  },
+];
+
+const SPINNER_PATH = "M12 2C12.5523 2 13 2.44772 13 3V6C13 6.55228 12.5523 7 12 7C11.4477 7 11 6.55228 11 6V3C11 2.44772 11.4477 2 12 2ZM12 17C12.5523 17 13 17.4477 13 18V21C13 21.5523 12.5523 22 12 22C11.4477 22 11 21.5523 11 21V18C11 17.4477 11.4477 17 12 17ZM22 12C22 12.5523 21.5523 13 21 13H18C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11H21C21.5523 11 22 11.4477 22 12ZM7 12C7 12.5523 6.55228 13 6 13H3C2.44772 13 2 12.5523 2 12C2 11.4477 2.44772 11 3 11H6C6.55228 11 7 11.4477 7 12ZM19.0711 19.0711C18.6805 19.4616 18.0474 19.4616 17.6569 19.0711L15.5355 16.9497C15.145 16.5592 15.145 15.9261 15.5355 15.5355C15.9261 15.145 16.5592 15.145 16.9497 15.5355L19.0711 17.6569C19.4616 18.0474 19.4616 18.6805 19.0711 19.0711ZM8.46447 8.46447C8.07394 8.85499 7.44078 8.85499 7.05025 8.46447L4.92893 6.34315C4.53841 5.95262 4.53841 5.31946 4.92893 4.92893C5.31946 4.53841 5.95262 4.53841 6.34315 4.92893L8.46447 7.05025C8.85499 7.44078 8.85499 8.07394 8.46447 8.46447ZM4.92893 19.0711C4.53841 18.6805 4.53841 18.0474 4.92893 17.6569L7.05025 15.5355C7.44078 15.145 8.07394 15.145 8.46447 15.5355C8.85499 15.9261 8.85499 16.5592 8.46447 16.9497L6.34315 19.0711C5.95262 19.4616 5.31946 19.4616 4.92893 19.0711ZM15.5355 8.46447C15.145 8.07394 15.145 7.44078 15.5355 7.05025L17.6569 4.92893C18.0474 4.53841 18.6805 4.53841 19.0711 4.92893C19.4616 5.31946 19.4616 5.95262 19.0711 6.34315L16.9497 8.46447C16.5592 8.85499 15.9261 8.85499 15.5355 8.46447Z";
+
+function GetButton({ onGet, state }: { onGet: (e: React.MouseEvent) => void; state: 'idle' | 'loading' | 'done' }) {
+  return (
+    <div
+      className="inline-flex items-center justify-center flex-none"
+      style={{ width: 64, height: 28, minHeight: 28, maxHeight: 28 }}
+    >
+      <button
+        onClick={onGet}
+        disabled={state !== 'idle'}
+        className="relative w-full h-full flex items-center justify-center rounded-full overflow-hidden font-semibold cursor-pointer transition-all hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:hover:brightness-100"
+        style={{ backgroundColor: 'rgba(255,255,255,0.08)', fontSize: 15, color: '#0A84FF', letterSpacing: '-0.01em' }}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          {state === 'idle' && (
+            <motion.span key="idle" className="absolute inset-0 flex items-center justify-center"
+              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}>Get</motion.span>
+          )}
+          {state === 'loading' && (
+            <motion.span key="loading" className="absolute inset-0 flex items-center justify-center"
+              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}>
+              <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 24 24" fill="currentColor">
+                <path d={SPINNER_PATH} />
+              </svg>
+            </motion.span>
+          )}
+          {state === 'done' && (
+            <motion.span key="done" className="absolute inset-0 flex items-center justify-center"
+              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}>✓</motion.span>
+          )}
+        </AnimatePresence>
+      </button>
+    </div>
+  );
+}
+
+function AppRow({ app, onExpand, isLast, isExpanded }: { app: App; onExpand: () => void; isLast: boolean; isExpanded: boolean }) {
+  const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle');
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleGet = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (state !== 'idle') return;
+    setState('loading');
+    timeoutRef.current = setTimeout(() => {
+      setState('done');
+      timeoutRef.current = setTimeout(() => setState('idle'), 2000);
+    }, 1000);
+  };
+
+  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+
+  return (
+    <div className="flex flex-col">
+      <motion.div
+        layoutId={`card-${app.id}`}
+        className="cursor-pointer"
+        style={{ borderRadius: 12 }}
+        transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+        onClick={onExpand}
+      >
+        <div className="flex items-center" style={{ gap: 16, paddingTop: 14, paddingBottom: 14, paddingLeft: 22, paddingRight: 22, opacity: isExpanded ? 0 : 1, transition: 'opacity 0.15s' }}>
+          <motion.img
+            layoutId={`icon-${app.id}`}
+            src={app.icon}
+            alt={app.name}
+            className="shrink-0 rounded-[14px] object-cover"
+            style={{ width: 56, height: 56 }}
+          />
+          <div className="flex-1 min-w-0" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <motion.p layoutId={`name-${app.id}`} className="text-white font-semibold font-inter truncate" style={{ fontSize: 16, lineHeight: '20px' }}>
+              {app.name}
+            </motion.p>
+            <motion.p layoutId={`subdesc-${app.id}`} className="font-inter font-normal truncate" style={{ fontSize: 14, lineHeight: '16px', color: '#99989B' }}>
+              {app.description}
+            </motion.p>
+          </div>
+          <div onClick={e => e.stopPropagation()}>
+            <GetButton onGet={handleGet} state={state} />
+          </div>
+        </div>
+      </motion.div>
+      {!isLast && <div style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.06)', marginLeft: 94, marginRight: 22 }} />}
+    </div>
+  );
+}
+
+function ExpandedCard({ app, onClose }: { app: App; onClose: () => void }) {
+  const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle');
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleGet = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (state !== 'idle') return;
+    setState('loading');
+    timeoutRef.current = setTimeout(() => {
+      setState('done');
+      timeoutRef.current = setTimeout(() => setState('idle'), 2000);
+    }, 1000);
+  };
+
+  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+
+  return (
+    <motion.div
+      layoutId={`card-${app.id}`}
+      className="w-full overflow-hidden"
+      style={{ borderRadius: 20, backgroundColor: '#111111', paddingTop: 4, border: '0.7px solid rgba(255,255,255,0.12)' }}
+      transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+      onClick={e => e.stopPropagation()}
+    >
+      <div className="flex items-center" style={{ gap: 16, paddingTop: 18, paddingBottom: 18, paddingLeft: 22, paddingRight: 22 }}>
+        <motion.img
+          layoutId={`icon-${app.id}`}
+          src={app.icon}
+          alt={app.name}
+          className="shrink-0 rounded-[14px] object-cover"
+          style={{ width: 56, height: 56 }}
+        />
+        <div className="flex-1 min-w-0" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <motion.p layoutId={`name-${app.id}`} className="text-white font-semibold font-inter" style={{ fontSize: 16, lineHeight: '20px' }}>
+            {app.name}
+          </motion.p>
+          <motion.p layoutId={`subdesc-${app.id}`} className="font-inter font-normal" style={{ fontSize: 14, lineHeight: '16px', color: '#99989B' }}>
+            {app.description}
+          </motion.p>
+        </div>
+        <GetButton onGet={handleGet} state={state} />
+      </div>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2, delay: 0.15 }}
+        className="font-inter font-normal"
+        style={{ paddingLeft: 22, paddingRight: 22, paddingBottom: 22, fontSize: 14, lineHeight: '22px', color: '#99989B' }}
+      >
+        {app.longDescription}
+      </motion.p>
+    </motion.div>
+  );
+}
+
+function AppList() {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const expandedApp = expandedId ? APPS.find(a => a.id === expandedId) ?? null : null;
+
+  return (
+    <>
+      {/* Wrapper card */}
+      <div
+        className="w-full flex flex-col justify-center"
+        style={{ backgroundColor: '#111111', borderRadius: 22, paddingTop: 8, paddingBottom: 8 }}
+      >
+        {APPS.map((app, i) => (
+          <AppRow
+            key={app.id}
+            app={app}
+            isLast={i === APPS.length - 1}
+            isExpanded={expandedId === app.id}
+            onExpand={() => setExpandedId(app.id)}
+          />
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {expandedApp && (
+          <>
+            <motion.div
+              key="backdrop"
+              className="absolute inset-0 z-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              style={{ backgroundColor: 'rgba(0,0,0,0.50)', backdropFilter: 'blur(10px)' }}
+              onClick={() => setExpandedId(null)}
+            />
+            <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none" style={{ paddingLeft: 22, paddingRight: 22 }}>
+              <div className="pointer-events-auto w-full">
+                <ExpandedCard app={expandedApp} onClose={() => setExpandedId(null)} />
+              </div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function Experience() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
@@ -346,7 +588,7 @@ export default function Experience() {
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
-              className={`shrink-0 transition-colors cursor-default overflow-hidden bg-[#171717] ${i === 1 ? 'flex items-center justify-center' : 'hover:bg-[#1a1a1a]'}`}
+              className={`shrink-0 transition-colors cursor-default overflow-hidden bg-[#171717] ${i === 1 ? 'flex items-center justify-center' : 'hover:bg-[#1a1a1a]'} ${i === 2 ? 'relative' : ''}`}
               style={{
                 width: '488px',
                 height: '515px',
@@ -560,6 +802,11 @@ export default function Experience() {
                       </AnimatePresence>
                     </span>
                   </button>
+                </div>
+              )}
+              {i === 2 && (
+                <div className="w-full h-full flex items-center justify-center" style={{ padding: 28 }}>
+                  <AppList />
                 </div>
               )}
             </div>
