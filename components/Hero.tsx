@@ -4,12 +4,18 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { TextAnimateByLine, type LineSegment } from '@/components/TextAnimate';
 
+const WALLET_LOGOS: { src: string; alt: string; href?: string }[] = [
+  { src: '/wallet-email-logo.png', alt: 'Email', href: 'mailto:atharva.sakharkar33@gmail.com' },
+  { src: '/wallet-twitter-logo.png', alt: 'Twitter', href: 'https://x.com/OGAtharva' },
+  { src: '/wallet-linkedin-logo.png', alt: 'LinkedIn', href: 'https://www.linkedin.com/in/atharva33/' },
+  { src: '/wallet-youtube-logo.png', alt: 'YouTube' },
+];
+
 const HERO_LINES: LineSegment[][] = [
   [
-    { type: 'text', value: "Hello! I'm Atharva — a " },
-    { type: 'text', value: 'product designer', className: 'font-semibold' },
+    { type: 'text', value: "i'm a product designer" },
     { type: 'text', value: ' based in ' },
-    { type: 'text', value: 'sf', className: 'font-semibold' },
+    { type: 'text', value: 'san francisco', className: 'font-semibold' },
     {
       type: 'image',
       src: '/sf-icon.svg',
@@ -19,11 +25,17 @@ const HERO_LINES: LineSegment[][] = [
       className: 'ml-3',
       style: { transform: 'translateY(-4px)' },
     },
-  ],
-  [
-    { type: 'text', value: ' interested in ' },
-    { type: 'text', value: 'visual design', className: 'font-semibold' },
-    { type: 'text', value: ', design systems, web3, and gen ai. Currently, I am working at ' },
+    { type: 'text', value: ' ' },
+    { type: 'text', value: 'currently, a ' },
+    { type: 'text', value: 'founding designer', className: 'font-semibold' },
+    { type: 'text', value: ' at a stealth startup' },
+    { type: 'text', value: ', building ' },
+    { type: 'text', value: 'privacy focused ai tools', className: 'font-semibold' },
+    { type: 'text', value: '. ' },
+    { type: 'text', value: 'i care about creating experiences that go beyond mere usability, shaped by ' },
+    { type: 'text', value: 'quality and craft', className: 'font-semibold' },
+    { type: 'text', value: '. ' },
+    { type: 'text', value: 'previously, i worked at ' },
     {
       type: 'image',
       src: '/cb-logo.png',
@@ -33,40 +45,37 @@ const HERO_LINES: LineSegment[][] = [
       style: { paddingLeft: '5px', paddingRight: '0px', paddingBottom: '5px', transform: 'translateY(-4px)' },
       imageStyle: { borderRadius: 4 },
     },
-  ],
-  [
     { type: 'text', value: ' ' },
-    { type: 'text', value: 'Coinbase', className: 'font-semibold' },
-    { type: 'text', value: ' designing the ' },
-    { type: 'text', value: 'base', className: 'font-semibold' },
-    { type: 'text', value: ' app to help users create, earn, and trade onchain.' },
+    { type: 'text', value: 'coinbase', className: 'font-semibold' },
+    { type: 'text', value: ' and a few other places.' },
   ],
 ];
 
 export default function Hero() {
   return (
-    <section className="flex items-start justify-center px-4 sm:px-6 lg:px-8 pt-[96px] pb-[120px]">
-      <div className="max-w-[1080px] mx-auto mt-0">
+    <section className="relative z-0 flex items-start justify-center px-4 sm:px-6 lg:px-8 pt-[96px] pb-[120px]">
+      <div className="w-full max-w-[1080px] mx-auto mt-0">
         <TextAnimateByLine
           lines={HERO_LINES}
           delay={0}
           duration={0.5}
-          stagger={0.12}
+          stagger={0.1}
+          blockLines
           className="text-[40px] leading-[64px] tracking-[-0.03em] text-gray-900 font-runde font-normal"
           as="div"
         />
-        <div className="mt-12 flex items-center gap-3">
+        <div className="hidden mt-10 sm:mt-12 flex items-center gap-3">
           <motion.span
             className="inline-flex items-center"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.36, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.4, delay: 0.42, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <Image
               src="/wave-emoji.svg"
               alt="Wave"
-              width={36}
-              height={36}
+              width={32}
+              height={32}
               className="inline-block"
             />
           </motion.span>
@@ -79,8 +88,8 @@ export default function Hero() {
                 element.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }
             }}
-            className="text-[36px] font-semibold text-gray-900 hover:text-gray-700 transition-colors font-runde inline-block tracking-[-0.03em]"
-            style={{ height: '48px', lineHeight: '48px' }}
+            className="text-[28px] sm:text-[32px] font-semibold text-gray-900 hover:text-gray-700 transition-colors font-runde inline-block tracking-[-0.03em]"
+            style={{ height: '44px', lineHeight: '44px' }}
           >
             {'Get in touch'.split('').map((char, i) => (
               <motion.span
@@ -90,7 +99,7 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
                   duration: 0.4,
-                  delay: 0.36 + (i + 1) * 0.03,
+                  delay: 0.42 + (i + 1) * 0.03,
                   ease: [0.25, 0.46, 0.45, 0.94],
                 }}
               >
@@ -100,23 +109,57 @@ export default function Hero() {
           </a>
         </div>
         <div
-          className="relative z-20 mt-8 wallet-container cursor-pointer"
-          style={{ width: '357px', height: '209px', position: 'relative' }}
+          className="relative mt-8 wallet-container cursor-pointer"
+          style={{ width: '357px', height: '209px' }}
         >
           <motion.div
             className="absolute inset-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 1.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.5, delay: 1.25, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            <div className="wallet-logos absolute top-0 left-0 right-0 flex items-center justify-center pointer-events-none">
-              <Image
-                src="/comp-logos.png"
-                alt="Company Logos"
-                width={300}
-                height={60}
-                className="object-contain transition-all duration-500 ease-out"
-              />
+            <div className="wallet-logos absolute top-0 left-0 right-0 flex items-center justify-center gap-3">
+              {WALLET_LOGOS.map((logo, index) => {
+                const image = (
+                  <Image
+                    src={logo.src}
+                    alt={logo.alt}
+                    width={72}
+                    height={72}
+                    className={`rounded-2xl object-contain transition-all duration-500 ease-out ${
+                      index === WALLET_LOGOS.length - 1 ? 'border border-black/[0.06]' : ''
+                    }`}
+                  />
+                );
+                const wrapperClassName = 'inline-block transition-transform duration-500 ease-out hover:scale-[1.03]';
+                const wrapperStyle = {
+                  transform: `rotate(${index % 2 === 0 ? -4 : 4}deg)`,
+                };
+
+                if (logo.href) {
+                  const isExternal = logo.href.startsWith('http');
+
+                  return (
+                    <a
+                      key={logo.src}
+                      href={logo.href}
+                      target={isExternal ? '_blank' : undefined}
+                      rel={isExternal ? 'noopener noreferrer' : undefined}
+                      aria-label={logo.alt}
+                      className={wrapperClassName}
+                      style={wrapperStyle}
+                    >
+                      {image}
+                    </a>
+                  );
+                }
+
+                return (
+                  <span key={logo.src} className={wrapperClassName} style={wrapperStyle}>
+                    {image}
+                  </span>
+                );
+              })}
             </div>
             <div className="absolute bottom-0 left-0 right-0 z-10">
               <Image
