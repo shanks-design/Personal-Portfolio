@@ -89,17 +89,17 @@ export default function ProjectCard({
               height={24} 
               className="inline-block"
             />
-            <span className="tracking-[-0.01em] font-inter font-medium" style={{ fontSize: '20px', lineHeight: '24px', color: textColor }}>{type}</span>
+            <span className="tracking-[-0.01em] font-runde font-medium" style={{ fontSize: '20px', lineHeight: '24px', color: textColor }}>{type}</span>
           </div>
           <h3 className="text-[36px] font-semibold tracking-[-0.03em]" style={{ lineHeight: '44px', marginBottom: '24px', maxWidth: '444px', wordWrap: 'break-word', whiteSpace: 'normal' }}>
             <span style={{ color: textColor }}>{title}{' '}</span>
             <span style={{ color: highlightColor }}>{titleHighlight}</span>
           </h3>
-          <p className="font-inter font-normal text-[22px] tracking-[-0.01em]" style={{ lineHeight: '32px', color: textColor, marginBottom: '72px' }}>
+          <p className="font-runde font-normal text-[22px] tracking-[-0.01em]" style={{ lineHeight: '32px', color: textColor, marginBottom: '72px' }}>
             {company} · {readTime}
           </p>
         </div>
-        <button className="flex items-center justify-between transition-all font-inter font-medium tracking-[-0.02em] w-full project-card-button" style={{ fontSize: '22px', lineHeight: '28px', color: textColor, maxWidth: '444px', backgroundColor: 'rgba(215, 231, 249, 0.06)', padding: '18px 24px', borderRadius: '20px' }}>
+        <button className="flex items-center justify-between transition-all font-runde font-medium tracking-[-0.02em] w-full project-card-button" style={{ fontSize: '22px', lineHeight: '28px', color: textColor, maxWidth: '444px', backgroundColor: 'rgba(215, 231, 249, 0.06)', padding: '18px 24px', borderRadius: '20px' }}>
           <span>{actionText}</span>
           <Image 
             src={iconColor === '#D6F5E1' && buttonIcon === '/arrow-icon.svg' ? '/arrow-icon-green.svg' : buttonIcon} 

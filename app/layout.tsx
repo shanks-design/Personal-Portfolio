@@ -51,7 +51,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-inter antialiased">
+      <body className="font-runde antialiased">
         {children}
       </body>
     </html>

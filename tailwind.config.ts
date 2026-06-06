@@ -11,6 +11,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         inter: ["var(--font-inter)", "sans-serif"],
+        runde: ["OpenRunde", "sans-serif"],
       },
       colors: {
         background: "var(--background)",

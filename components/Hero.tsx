@@ -52,7 +52,7 @@ export default function Hero() {
           delay={0}
           duration={0.5}
           stagger={0.12}
-          className="text-[40px] leading-[64px] tracking-[-0.03em] text-gray-900 font-inter font-normal"
+          className="text-[40px] leading-[64px] tracking-[-0.03em] text-gray-900 font-runde font-normal"
           as="div"
         />
         <div className="mt-12 flex items-center gap-3">
@@ -79,7 +79,7 @@ export default function Hero() {
                 element.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }
             }}
-            className="text-[36px] font-semibold text-gray-900 hover:text-gray-700 transition-colors font-inter inline-block tracking-[-0.03em]"
+            className="text-[36px] font-semibold text-gray-900 hover:text-gray-700 transition-colors font-runde inline-block tracking-[-0.03em]"
             style={{ height: '48px', lineHeight: '48px' }}
           >
             {'Get in touch'.split('').map((char, i) => (

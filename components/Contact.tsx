@@ -19,7 +19,7 @@ export default function Contact() {
     <footer
       id="contact"
       ref={ref}
-      className="font-inter bg-white rounded-t-[40px] px-4 sm:px-6 lg:px-8"
+      className="font-runde bg-white rounded-t-[40px] px-4 sm:px-6 lg:px-8"
       style={{ paddingTop: 64, paddingBottom: 80 }}
     >
       <div className="max-w-[1080px] mx-auto">

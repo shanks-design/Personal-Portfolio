@@ -121,11 +121,13 @@ const APPS: App[] = [
 
 const SPINNER_PATH = "M12 2C12.5523 2 13 2.44772 13 3V6C13 6.55228 12.5523 7 12 7C11.4477 7 11 6.55228 11 6V3C11 2.44772 11.4477 2 12 2ZM12 17C12.5523 17 13 17.4477 13 18V21C13 21.5523 12.5523 22 12 22C11.4477 22 11 21.5523 11 21V18C11 17.4477 11.4477 17 12 17ZM22 12C22 12.5523 21.5523 13 21 13H18C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11H21C21.5523 11 22 11.4477 22 12ZM7 12C7 12.5523 6.55228 13 6 13H3C2.44772 13 2 12.5523 2 12C2 11.4477 2.44772 11 3 11H6C6.55228 11 7 11.4477 7 12ZM19.0711 19.0711C18.6805 19.4616 18.0474 19.4616 17.6569 19.0711L15.5355 16.9497C15.145 16.5592 15.145 15.9261 15.5355 15.5355C15.9261 15.145 16.5592 15.145 16.9497 15.5355L19.0711 17.6569C19.4616 18.0474 19.4616 18.6805 19.0711 19.0711ZM8.46447 8.46447C8.07394 8.85499 7.44078 8.85499 7.05025 8.46447L4.92893 6.34315C4.53841 5.95262 4.53841 5.31946 4.92893 4.92893C5.31946 4.53841 5.95262 4.53841 6.34315 4.92893L8.46447 7.05025C8.85499 7.44078 8.85499 8.07394 8.46447 8.46447ZM4.92893 19.0711C4.53841 18.6805 4.53841 18.0474 4.92893 17.6569L7.05025 15.5355C7.44078 15.145 8.07394 15.145 8.46447 15.5355C8.85499 15.9261 8.85499 16.5592 8.46447 16.9497L6.34315 19.0711C5.95262 19.4616 5.31946 19.4616 4.92893 19.0711ZM15.5355 8.46447C15.145 8.07394 15.145 7.44078 15.5355 7.05025L17.6569 4.92893C18.0474 4.53841 18.6805 4.53841 19.0711 4.92893C19.4616 5.31946 19.4616 5.95262 19.0711 6.34315L16.9497 8.46447C16.5592 8.85499 15.9261 8.85499 15.5355 8.46447Z";
 
-function GetButton({ onGet, state }: { onGet: (e: React.MouseEvent) => void; state: 'idle' | 'loading' | 'done' }) {
+function GetButton({ onGet, state, layoutId }: { onGet: (e: React.MouseEvent) => void; state: 'idle' | 'loading' | 'done'; layoutId?: string }) {
   return (
-    <div
+    <motion.div
+      layoutId={layoutId}
       className="inline-flex items-center justify-center flex-none"
       style={{ width: 64, height: 28, minHeight: 28, maxHeight: 28 }}
+      transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
     >
       <button
         onClick={onGet}
@@ -136,13 +138,13 @@ function GetButton({ onGet, state }: { onGet: (e: React.MouseEvent) => void; sta
         <AnimatePresence mode="wait" initial={false}>
           {state === 'idle' && (
             <motion.span key="idle" className="absolute inset-0 flex items-center justify-center"
-              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}>Get</motion.span>
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}>Get</motion.span>
           )}
           {state === 'loading' && (
             <motion.span key="loading" className="absolute inset-0 flex items-center justify-center"
-              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}>
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}>
               <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 24 24" fill="currentColor">
                 <path d={SPINNER_PATH} />
               </svg>
@@ -150,12 +152,12 @@ function GetButton({ onGet, state }: { onGet: (e: React.MouseEvent) => void; sta
           )}
           {state === 'done' && (
             <motion.span key="done" className="absolute inset-0 flex items-center justify-center"
-              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}>✓</motion.span>
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}>✓</motion.span>
           )}
         </AnimatePresence>
       </button>
-    </div>
+    </motion.div>
   );
 }
 
@@ -193,15 +195,15 @@ function AppRow({ app, onExpand, isLast, isExpanded }: { app: App; onExpand: () 
             style={{ width: 56, height: 56 }}
           />
           <div className="flex-1 min-w-0" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <motion.p layoutId={`name-${app.id}`} className="text-white font-semibold font-inter truncate" style={{ fontSize: 16, lineHeight: '20px' }}>
+            <motion.p layoutId={`name-${app.id}`} className="text-white font-semibold font-runde truncate" style={{ fontSize: 16, lineHeight: '20px' }}>
               {app.name}
             </motion.p>
-            <motion.p layoutId={`subdesc-${app.id}`} className="font-inter font-normal truncate" style={{ fontSize: 14, lineHeight: '16px', color: '#99989B' }}>
+            <motion.p layoutId={`subdesc-${app.id}`} className="font-runde font-normal truncate" style={{ fontSize: 14, lineHeight: '16px', color: '#99989B' }}>
               {app.description}
             </motion.p>
           </div>
           <div onClick={e => e.stopPropagation()}>
-            <GetButton onGet={handleGet} state={state} />
+            <GetButton onGet={handleGet} state={state} layoutId={`getbtn-${app.id}`} />
           </div>
         </div>
       </motion.div>
@@ -243,21 +245,21 @@ function ExpandedCard({ app, onClose }: { app: App; onClose: () => void }) {
           style={{ width: 56, height: 56 }}
         />
         <div className="flex-1 min-w-0" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <motion.p layoutId={`name-${app.id}`} className="text-white font-semibold font-inter" style={{ fontSize: 16, lineHeight: '20px' }}>
+          <motion.p layoutId={`name-${app.id}`} className="text-white font-semibold font-runde" style={{ fontSize: 16, lineHeight: '20px' }}>
             {app.name}
           </motion.p>
-          <motion.p layoutId={`subdesc-${app.id}`} className="font-inter font-normal" style={{ fontSize: 14, lineHeight: '16px', color: '#99989B' }}>
+          <motion.p layoutId={`subdesc-${app.id}`} className="font-runde font-normal" style={{ fontSize: 14, lineHeight: '16px', color: '#99989B' }}>
             {app.description}
           </motion.p>
         </div>
-        <GetButton onGet={handleGet} state={state} />
+        <GetButton onGet={handleGet} state={state} layoutId={`getbtn-${app.id}`} />
       </div>
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2, delay: 0.15 }}
-        className="font-inter font-normal"
+        className="font-runde font-normal"
         style={{ paddingLeft: 22, paddingRight: 22, paddingBottom: 22, fontSize: 14, lineHeight: '22px', color: '#99989B' }}
       >
         {app.longDescription}
@@ -312,6 +314,8 @@ function AppList() {
     </>
   );
 }
+
+// ─── AI Thinking UI ──────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -378,8 +382,8 @@ export default function Experience() {
       loginButtonTimeoutRef.current = setTimeout(() => {
         setLoginButtonStage('idle');
         loginButtonTimeoutRef.current = null;
-      }, 2000);
-    }, 750);
+      }, 1700);
+    }, 580);
   }, [loginButtonStage, playClick]);
 
   const toggleExpanded = (index: number) => {
@@ -665,14 +669,17 @@ export default function Experience() {
                         className="flex items-center justify-center"
                         style={{ width: 112, height: 28, gap: 12 }}
                       >
-                      <button
+                      <motion.button
                         type="button"
                         onClick={goToPrevTrack}
-                        className="p-0 flex items-center justify-center shrink-0 cursor-pointer"
+                        className="p-0 flex items-center justify-center shrink-0 cursor-pointer rounded-full"
                         style={{ width: 28, height: 28, color: '#404040' }}
                         aria-label="Previous track"
+                        whileHover={{ scale: 1.15, filter: 'brightness(1.5)' }}
+                        whileTap={{ scale: 0.9 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 26 }}
                       >
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 pointer-events-none">
                           <g clipPath="url(#clip0_prev)">
                             <path d="M5.25 3.75V20.25" stroke="#404040" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                             <path d="M18.75 4.48878V19.5113C18.7473 19.6434 18.7097 19.7724 18.6411 19.8853C18.5725 19.9982 18.4753 20.091 18.3593 20.1543C18.2433 20.2176 18.1127 20.2491 17.9806 20.2457C17.8485 20.2422 17.7197 20.2039 17.6072 20.1347L5.59687 12.6235C5.49088 12.5576 5.40343 12.4658 5.34279 12.3567C5.28216 12.2476 5.25033 12.1248 5.25033 12C5.25033 11.8752 5.28216 11.7525 5.34279 11.6434C5.40343 11.5343 5.49088 11.4425 5.59687 11.3766L17.6072 3.86534C17.7197 3.79612 17.8485 3.75785 17.9806 3.7544C18.1127 3.75096 18.2433 3.78248 18.3593 3.84575C18.4753 3.90902 18.5725 4.00181 18.6411 4.11473C18.7097 4.22765 18.7473 4.35669 18.75 4.48878Z" fill="#404040"/>
@@ -683,21 +690,27 @@ export default function Experience() {
                             </clipPath>
                           </defs>
                         </svg>
-                      </button>
-                      <button
+                      </motion.button>
+                      <motion.button
                         type="button"
                         onClick={toggleMusicPlay}
-                        className="p-0 flex items-center justify-center shrink-0 cursor-pointer"
+                        className="p-0 flex items-center justify-center shrink-0 cursor-pointer rounded-full"
                         style={{ width: 28, height: 28 }}
                         aria-label={musicPlaying ? 'Pause' : 'Play'}
+                        whileHover={{
+                          scale: 1.1,
+                          filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.45)) brightness(1.08)',
+                        }}
+                        whileTap={{ scale: 0.92 }}
+                        transition={{ type: 'spring', stiffness: 450, damping: 28 }}
                       >
                         {musicPlaying ? (
-                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 pointer-events-none">
                             <rect x="6" y="4" width="4" height="16" rx="1" fill="#FFFFFF"/>
                             <rect x="14" y="4" width="4" height="16" rx="1" fill="#FFFFFF"/>
                           </svg>
                         ) : (
-                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 pointer-events-none">
                             <g clipPath="url(#clip0_play)">
                               <path d="M6.75 3.73876V20.2613C6.75245 20.3931 6.78962 20.522 6.85776 20.6349C6.9259 20.7478 7.0226 20.8407 7.13812 20.9043C7.25364 20.9679 7.38388 20.9999 7.51572 20.9972C7.64756 20.9944 7.77634 20.9569 7.88906 20.8884L21.3966 12.6272C21.5045 12.5619 21.5937 12.4699 21.6556 12.36C21.7175 12.2501 21.7501 12.1261 21.7501 12C21.7501 11.8739 21.7175 11.7499 21.6556 11.64C21.5937 11.5302 21.5045 11.4381 21.3966 11.3728L7.88906 3.11157C7.77634 3.04314 7.64756 3.00564 7.51572 3.00285C7.38388 3.00007 7.25364 3.03209 7.13812 3.0957C7.0226 3.1593 6.9259 3.25224 6.85776 3.36514C6.78962 3.47804 6.75245 3.60691 6.75 3.73876Z" fill="#FFFFFF"/>
                             </g>
@@ -708,15 +721,18 @@ export default function Experience() {
                             </defs>
                           </svg>
                         )}
-                      </button>
-                      <button
+                      </motion.button>
+                      <motion.button
                         type="button"
                         onClick={goToNextTrack}
-                        className="p-0 flex items-center justify-center shrink-0 cursor-pointer"
+                        className="p-0 flex items-center justify-center shrink-0 cursor-pointer rounded-full"
                         style={{ width: 28, height: 28 }}
                         aria-label="Next track"
+                        whileHover={{ scale: 1.15, filter: 'brightness(1.5)' }}
+                        whileTap={{ scale: 0.9 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 26 }}
                       >
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 pointer-events-none">
                           <g clipPath="url(#clip0_next)">
                             <path d="M18.75 3.75V20.25" stroke="#404040" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                             <path d="M5.25 4.48878V19.5113C5.25271 19.6434 5.29026 19.7724 5.35886 19.8853C5.42747 19.9982 5.52468 20.091 5.64067 20.1543C5.75665 20.2176 5.8873 20.2491 6.01937 20.2457C6.15145 20.2422 6.28028 20.2039 6.39281 20.1347L18.4031 12.6235C18.5091 12.5576 18.5966 12.4658 18.6572 12.3567C18.7178 12.2476 18.7497 12.1248 18.7497 12C18.7497 11.8752 18.7178 11.7525 18.6572 11.6434C18.5966 11.5343 18.5091 11.4425 18.4031 11.3766L6.39281 3.86534C6.28028 3.79612 6.15145 3.75785 6.01937 3.7544C5.8873 3.75096 5.75665 3.78248 5.64067 3.84575C5.52468 3.90902 5.42747 4.00181 5.35886 4.11473C5.29026 4.22765 5.25271 4.35669 5.25 4.48878Z" fill="#404040"/>
@@ -727,7 +743,7 @@ export default function Experience() {
                             </clipPath>
                           </defs>
                         </svg>
-                      </button>
+                      </motion.button>
                     </div>
                     </div>
                   </div>
@@ -738,10 +754,10 @@ export default function Experience() {
                   className="inline-flex items-center justify-center flex-none overflow-visible"
                   style={{ width: 'max-content', height: 46, minHeight: 46, maxHeight: 46 }}
                 >
-                  <button
+                  <motion.button
                     type="button"
                     disabled={loginButtonStage !== 'idle'}
-                    className="relative text-white font-semibold cursor-pointer transition-all inline-flex items-center justify-center w-full h-full hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:hover:brightness-100"
+                    className="relative text-white font-semibold cursor-pointer inline-flex items-center justify-center w-full h-full disabled:cursor-not-allowed"
                     style={{
                       background: 'linear-gradient(180deg, #48A4FF 0%, #1577FE 100%)',
                       boxShadow: '0px 6px 16px -2px rgba(0, 0, 0, 0.48), inset 0px 2px 0px 0px rgba(255, 255, 255, 0.32), 0px 3px 4px -2px rgba(0, 0, 0, 1)',
@@ -756,6 +772,18 @@ export default function Experience() {
                       minWidth: 220,
                     }}
                     onClick={startLoginLinkCycle}
+                    whileHover={
+                      loginButtonStage === 'idle'
+                        ? {
+                            scale: 1.02,
+                            boxShadow:
+                              '0px 8px 22px -2px rgba(0, 0, 0, 0.42), inset 0px 2px 0px 0px rgba(255, 255, 255, 0.38), 0px 4px 6px -2px rgba(0, 0, 0, 0.85)',
+                            filter: 'brightness(1.06)',
+                          }
+                        : undefined
+                    }
+                    whileTap={loginButtonStage === 'idle' ? { scale: 0.965 } : undefined}
+                    transition={{ type: 'spring', stiffness: 520, damping: 32, mass: 0.35 }}
                   >
                     <span className="flex min-h-[32px] flex-1 items-center justify-center self-stretch overflow-hidden">
                       <AnimatePresence mode="wait" initial={false}>
@@ -764,10 +792,10 @@ export default function Experience() {
                             key="idle"
                             className="inline-block"
                             style={{ fontSize: 18, lineHeight: 32, letterSpacing: '-0.01em' }}
-                            initial={{ y: -12, opacity: 0 }}
+                            initial={{ y: 5, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: 12, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            exit={{ y: -4, opacity: 0 }}
+                            transition={{ type: 'spring', stiffness: 560, damping: 38, mass: 0.35 }}
                           >
                             Send me a login link
                           </motion.span>
@@ -776,12 +804,21 @@ export default function Experience() {
                           <motion.span
                             key="loading"
                             className="inline-flex items-center justify-center"
-                            initial={{ y: -12, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: 12, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            initial={{ y: 6, opacity: 0, scale: 0.92 }}
+                            animate={{ y: 0, opacity: 1, scale: 1 }}
+                            exit={{ y: -3, opacity: 0 }}
+                            transition={{ type: 'spring', stiffness: 580, damping: 40, mass: 0.32 }}
                           >
-                            <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                            <svg
+                              className="animate-spin"
+                              style={{ animationDuration: '0.55s' }}
+                              xmlns="http://www.w3.org/2000/svg"
+                              width={24}
+                              height={24}
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              aria-hidden
+                            >
                               <path d="M12 2C12.5523 2 13 2.44772 13 3V6C13 6.55228 12.5523 7 12 7C11.4477 7 11 6.55228 11 6V3C11 2.44772 11.4477 2 12 2ZM12 17C12.5523 17 13 17.4477 13 18V21C13 21.5523 12.5523 22 12 22C11.4477 22 11 21.5523 11 21V18C11 17.4477 11.4477 17 12 17ZM22 12C22 12.5523 21.5523 13 21 13H18C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11H21C21.5523 11 22 11.4477 22 12ZM7 12C7 12.5523 6.55228 13 6 13H3C2.44772 13 2 12.5523 2 12C2 11.4477 2.44772 11 3 11H6C6.55228 11 7 11.4477 7 12ZM19.0711 19.0711C18.6805 19.4616 18.0474 19.4616 17.6569 19.0711L15.5355 16.9497C15.145 16.5592 15.145 15.9261 15.5355 15.5355C15.9261 15.145 16.5592 15.145 16.9497 15.5355L19.0711 17.6569C19.4616 18.0474 19.4616 18.6805 19.0711 19.0711ZM8.46447 8.46447C8.07394 8.85499 7.44078 8.85499 7.05025 8.46447L4.92893 6.34315C4.53841 5.95262 4.53841 5.31946 4.92893 4.92893C5.31946 4.53841 5.95262 4.53841 6.34315 4.92893L8.46447 7.05025C8.85499 7.44078 8.85499 8.07394 8.46447 8.46447ZM4.92893 19.0711C4.53841 18.6805 4.53841 18.0474 4.92893 17.6569L7.05025 15.5355C7.44078 15.145 8.07394 15.145 8.46447 15.5355C8.85499 15.9261 8.85499 16.5592 8.46447 16.9497L6.34315 19.0711C5.95262 19.4616 5.31946 19.4616 4.92893 19.0711ZM15.5355 8.46447C15.145 8.07394 15.145 7.44078 15.5355 7.05025L17.6569 4.92893C18.0474 4.53841 18.6805 4.53841 19.0711 4.92893C19.4616 5.31946 19.4616 5.95262 19.0711 6.34315L16.9497 8.46447C16.5592 8.85499 15.9261 8.85499 15.5355 8.46447Z" />
                             </svg>
                           </motion.span>
@@ -791,23 +828,26 @@ export default function Experience() {
                             key="sent"
                             className="inline-block"
                             style={{ fontSize: 18, lineHeight: 32, letterSpacing: '-0.01em' }}
-                            initial={{ y: -12, opacity: 0 }}
+                            initial={{ y: 5, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: 12, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                            exit={{ y: -3, opacity: 0 }}
+                            transition={{ type: 'spring', stiffness: 560, damping: 38, mass: 0.35 }}
                           >
                             login link sent!
                           </motion.span>
                         )}
                       </AnimatePresence>
                     </span>
-                  </button>
+                  </motion.button>
                 </div>
               )}
               {i === 2 && (
                 <div className="w-full h-full flex items-center justify-center" style={{ padding: 28 }}>
                   <AppList />
                 </div>
+              )}
+              {i === 3 && (
+                <div className="w-full h-full min-h-0" aria-hidden />
               )}
             </div>
           ))}
