@@ -27,13 +27,12 @@ interface PolaroidConfig {
 }
 
 const ALL_POLAROIDS: PolaroidConfig[] = [
-  { id: 'me', label: 'Me :)', image: '/me-photo-polo.png', initialLeft: '50%', initialTop: '8%', rotation: 7, size: 'medium', fullPolaroidImage: true },
-  { id: 'climbing', label: 'Climbing', image: '/Climbing-photo-polo.png', initialLeft: '23.3%', initialTop: '51.5%', rotation: 30, size: 'medium', fullPolaroidImage: true },
-  { id: 'travelling', label: 'Travelling', image: '/travelling-photo-polo.png', initialLeft: '50%', initialTop: '44.2%', rotation: -5, size: 'medium', fullPolaroidImage: true },
-  { id: 'painting', label: 'Painting', image: '/Painting-photo-polo.png', initialLeft: '80%', initialTop: '51.1%', rotation: 10, size: 'large', fullPolaroidImage: true },
-  { id: 'left-of-art', label: 'Touching grass', image: '/Grass-photo-polo.png', initialLeft: '27%', initialTop: '81.5%', rotation: -12, size: 'large', fullPolaroidImage: true },
-  { id: 'art', label: 'Watching art', image: '/Art-photo-polo.png', initialLeft: '51.4%', initialTop: '77.9%', rotation: -12, size: 'small', fullPolaroidImage: true },
-  { id: 'cooking', label: 'Cooking', image: '/Cooking-photo-polo.png', initialLeft: '75.8%', initialTop: '76.2%', rotation: 18, size: 'medium', fullPolaroidImage: true },
+  { id: 'me', label: 'Me :)', image: '/me-photo-polo.png', initialLeft: '50%', initialTop: '21.1%', rotation: 7, size: 'medium', fullPolaroidImage: true },
+  { id: 'climbing', label: 'Climbing', image: '/Climbing-photo-polo.png', initialLeft: '23.3%', initialTop: '31.4%', rotation: 30, size: 'medium', fullPolaroidImage: true },
+  { id: 'travelling', label: 'Travelling', image: '/travelling-photo-polo.png', initialLeft: '51.4%', initialTop: '68.8%', rotation: -5, size: 'medium', fullPolaroidImage: true },
+  { id: 'painting', label: 'Painting', image: '/Painting-photo-polo.png', initialLeft: '80%', initialTop: '30.8%', rotation: 10, size: 'large', fullPolaroidImage: true },
+  { id: 'left-of-art', label: 'Touching grass', image: '/Grass-photo-polo.png', initialLeft: '27%', initialTop: '74.0%', rotation: -12, size: 'large', fullPolaroidImage: true },
+  { id: 'cooking', label: 'Cooking', image: '/Cooking-photo-polo.png', initialLeft: '75.8%', initialTop: '66.4%', rotation: 18, size: 'medium', fullPolaroidImage: true },
 ];
 
 function ViewportPolaroid({
@@ -167,8 +166,8 @@ export default function AboutCanvas() {
     <section
       className="relative w-full bg-white overflow-hidden rounded-t-[40px]"
       style={{
-        height: '1882px',
-        marginTop: '120px',
+        height: '1327px',
+        marginTop: '0px',
         zIndex: 20,
       }}
     >
@@ -183,7 +182,7 @@ export default function AboutCanvas() {
           aria-hidden
         >
           <div
-            className="absolute text-gray-800 text-center max-w-[660px]"
+            className="hidden absolute text-gray-800 text-center max-w-[660px]"
             style={{
               fontFamily: 'OpenRunde, Inter, sans-serif',
               fontSize: '34px',
@@ -210,7 +209,7 @@ export default function AboutCanvas() {
               fontWeight: 400,
               paddingTop: '10px',
               left: '50%',
-              top: '61%',
+              top: '44.8%',
               transform: 'translate(-50%, -50%)',
             }}
           >

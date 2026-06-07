@@ -15,7 +15,7 @@ export default function SelectedWorkSection() {
       className="relative z-10 w-screen bg-black px-4 sm:px-6 lg:px-8"
       style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', marginTop: '-120px' }}
     >
-      <div className="max-w-[1080px] mx-auto pt-[120px]" style={{ paddingBottom: '120px' }}>
+      <div className="max-w-[1080px] mx-auto pt-[120px]" style={{ paddingBottom: '152px' }}>
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}

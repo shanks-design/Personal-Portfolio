@@ -30,7 +30,9 @@ const HERO_LINES: LineSegment[][] = [
     { type: 'text', value: 'founding designer', className: 'font-semibold' },
     { type: 'text', value: ' at a stealth startup' },
     { type: 'text', value: ', building ' },
-    { type: 'text', value: 'privacy focused ai tools', className: 'font-semibold' },
+    { type: 'text', value: 'privacy', className: 'font-semibold' },
+    { type: 'text', value: ' focused ' },
+    { type: 'text', value: 'ai tools', className: 'font-semibold' },
     { type: 'text', value: '. ' },
     { type: 'text', value: 'i care about creating experiences that go beyond mere usability, shaped by ' },
     { type: 'text', value: 'quality and craft', className: 'font-semibold' },
@@ -53,7 +55,7 @@ const HERO_LINES: LineSegment[][] = [
 
 export default function Hero() {
   return (
-    <section className="relative z-0 flex items-start justify-center px-4 sm:px-6 lg:px-8 pt-[96px] pb-[120px]">
+    <section className="relative z-0 flex items-start justify-center px-4 sm:px-6 lg:px-8 pt-[100px] pb-[120px]">
       <div className="w-full max-w-[1080px] mx-auto mt-0">
         <TextAnimateByLine
           lines={HERO_LINES}
@@ -109,7 +111,7 @@ export default function Hero() {
           </a>
         </div>
         <div
-          className="relative mt-8 wallet-container cursor-pointer"
+          className="relative mt-[-8px] wallet-container cursor-pointer"
           style={{ width: '357px', height: '209px' }}
         >
           <motion.div

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
+import MorphingText from '@/components/MorphingText';
 
 export default function Contact() {
   const ref = useRef(null);
@@ -19,7 +20,7 @@ export default function Contact() {
     <footer
       id="contact"
       ref={ref}
-      className="font-runde bg-white rounded-t-[40px] px-4 sm:px-6 lg:px-8"
+      className="font-runde bg-white rounded-t-[40px] px-4 sm:px-6 lg:px-8 lowercase"
       style={{ paddingTop: 64, paddingBottom: 80 }}
     >
       <div className="max-w-[1080px] mx-auto">
@@ -30,7 +31,7 @@ export default function Contact() {
           >
           <div style={{ marginBottom: 48 }}>
             <h2
-              className="font-semibold text-gray-900"
+              className="font-semibold text-gray-900 flex items-center"
               style={{
                 fontSize: '40px',
                 lineHeight: '48px',
@@ -38,15 +39,14 @@ export default function Contact() {
                 marginBottom: 16,
               }}
             >
-              Let&apos;s Talk{' '}
-            <img
-              src="/wave-hand.png"
-              alt=""
-              width={40}
-              height={40}
-              className="inline-block align-middle"
-              style={{ verticalAlign: 'middle', paddingBottom: 6 }}
-            />
+              <MorphingText
+                phrases={[
+                  { text: "Let's Talk", emoji: '👋' },
+                  { text: "Let's Build", emoji: '🔨' },
+                  { text: 'Say Hello', emoji: '😊', emojiNudge: -8 },
+                  { text: "Let's Chat", emoji: '💬' },
+                ]}
+              />
             </h2>
             <p
               className="font-normal"
@@ -62,8 +62,7 @@ export default function Contact() {
           </div>
 
           <div
-            className="border-t"
-            style={{ borderColor: '#E0E0E0', paddingTop: 32 }}
+            style={{ paddingTop: 32 }}
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
               <nav className="flex flex-wrap gap-x-6 gap-y-1">

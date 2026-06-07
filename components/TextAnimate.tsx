@@ -49,7 +49,7 @@ export function TextAnimateByLine({
           <LineWrapper
             key={lineIndex}
             className={blockLines ? 'block w-full' : 'inline'}
-            initial={fadeIn.initial}
+            initial={blockLines ? false : fadeIn.initial}
             animate={fadeIn.animate}
             transition={{
               duration,

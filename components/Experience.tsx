@@ -398,7 +398,7 @@ export default function Experience() {
   return (
     <section
       ref={ref}
-      className="relative bg-black rounded-[40px]"
+      className="relative bg-black"
       style={{ paddingTop: 72, paddingBottom: 120 }}
     >
       <div className="max-w-[1080px] mx-auto">
@@ -480,9 +480,9 @@ export default function Experience() {
                   onClick={() => toggleExpanded(index)}
                   className="shrink-0 flex items-center text-white font-medium transition-colors hover:bg-[#3d3d3d]"
                   style={{
-                    backgroundColor: '#333333',
+                    backgroundColor: '#1A1A1A',
                     borderRadius: '32px',
-                    border: '1px solid #434343',
+                    border: '1px solid #1F1F1F',
                     paddingTop: 4,
                     paddingBottom: 4,
                     paddingLeft: 12,
@@ -596,7 +596,7 @@ export default function Experience() {
               style={{
                 width: '488px',
                 height: '515px',
-                borderRadius: 16,
+                borderRadius: 24,
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 boxShadow: 'inset -1px -1px 4px 0 rgba(255, 255, 255, 0.06)',
               }}
