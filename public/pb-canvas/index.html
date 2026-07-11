@@ -50,6 +50,7 @@
     -webkit-user-select:none;
   }
   #stage.grabbing{cursor:grabbing}
+  #stage.grabbing .card{cursor:grabbing}
 
   #stars{
     position:absolute;inset:-50px;
@@ -78,7 +79,7 @@
     width:var(--card-w);height:var(--card-h);
     padding:0;border:0;background:none;
     border-radius:16px;
-    cursor:pointer;
+    cursor:grab;
     -webkit-tap-highlight-color:transparent;
     transition:transform .42s cubic-bezier(.22,.61,.36,1), filter .42s ease, opacity .42s ease;
   }
@@ -326,12 +327,8 @@
     if(pointers.size<2) pinch=null;
     if(pointers.size===0){
       stage.classList.remove("grabbing");
-      if(dragging && !moved && downCard){
-        var cc=parseInt(downCard.dataset.c,10), rr=parseInt(downCard.dataset.r,10);
-        if(focusMode && cc===focusC && rr===focusR) exitFocus(); else focusCell(cc,rr);
-      } else if(dragging && !moved && focusMode){
-        exitFocus();
-      } else if(dragging && moved){ inertia(); }
+      // cards are not clickable: a tap does nothing, only drags pan (with inertia)
+      if(dragging && moved){ inertia(); }
       dragging=false;
     } else if(pointers.size===1){
       var rem=[...pointers.values()][0];
