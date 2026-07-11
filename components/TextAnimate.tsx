@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 export type LineSegment =
@@ -26,16 +25,8 @@ type TextAnimateByLineProps = {
   blockLines?: boolean;
 };
 
-const fadeIn = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-};
-
 export function TextAnimateByLine({
   lines,
-  delay = 0,
-  duration = 0.5,
-  stagger = 0.12,
   className = '',
   as: Component = 'div',
   blockLines = false,
@@ -43,19 +34,12 @@ export function TextAnimateByLine({
   return (
     <Component className={className}>
       {lines.map((lineSegments, lineIndex) => {
-        const LineWrapper = blockLines ? motion.div : motion.span;
+        const LineWrapper = blockLines ? 'div' : 'span';
 
         return (
           <LineWrapper
             key={lineIndex}
             className={blockLines ? 'block w-full' : 'inline'}
-            initial={blockLines ? false : fadeIn.initial}
-            animate={fadeIn.animate}
-            transition={{
-              duration,
-              delay: delay + lineIndex * stagger,
-              ease: [0.25, 0.46, 0.45, 0.94],
-            }}
           >
             {lineSegments.map((seg, i) => {
               if (seg.type === 'text') {

@@ -1,15 +1,130 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Maximize2, X } from 'lucide-react';
-import { GlassButton } from '@/components/liquid-glass';
+import { Maximize2, Navigation, X } from 'lucide-react';
+import { GlassOverIframeButton } from '@/components/liquid-glass';
+import { useGlassChromeDials } from '@/components/liquid-glass/useGlassChromeDials';
+import { Pointer } from '@/components/ui/pointer';
 
-const CANVAS_SRC = '/pb-canvas/index.html';
+const CANVAS_SRC = '/pb-canvas/index.html?chrome=0';
+
+function EmojiPointer() {
+  return (
+    <Pointer>
+      <span className="text-2xl">👆</span>
+    </Pointer>
+  );
+}
+
+function postHome(iframe: HTMLIFrameElement | null) {
+  iframe?.contentWindow?.postMessage({ type: 'pb-canvas:home' }, '*');
+}
+
+function CanvasChrome({
+  iframeRef,
+  onExpand,
+  onClose,
+}: {
+  iframeRef: React.RefObject<HTMLIFrameElement | null>;
+  onExpand?: () => void;
+  onClose?: () => void;
+}) {
+  const dials = useGlassChromeDials();
+  const goHome = useCallback(() => {
+    postHome(iframeRef.current);
+  }, [iframeRef]);
+
+  const width = dials.size.width;
+  const height = dials.size.height;
+  const radius = dials.size.pill ? ('pill' as const) : dials.size.borderRadius;
+  const glassProps = {
+    width,
+    height,
+    radius,
+    depth: dials.refraction.depth,
+    strength: dials.refraction.strength,
+    curvature: dials.refraction.curvature,
+    splay: dials.refraction.splay,
+    chroma: dials.refraction.chroma,
+    blur: dials.refraction.blur,
+    rim: dials.surface.rim,
+    glow: dials.surface.glow,
+    specularAngle: dials.surface.specularAngle,
+    tint: `rgba(0,0,0,${dials.surface.tintOpacity})`,
+    borderWidth: dials.border.width,
+    borderAngle: dials.border.angle,
+    borderColorStart: dials.border.colorStart,
+    borderColorMiddle: dials.border.colorMiddle,
+    borderColorEnd: dials.border.colorEnd,
+    borderOpacityStart: dials.border.opacityStart,
+    borderOpacityMiddle: dials.border.opacityMiddle,
+    borderOpacityEnd: dials.border.opacityEnd,
+    borderMiddleStop: dials.border.middleStop,
+  };
+  const iconSize = Math.round(Math.min(width, height) * 0.45);
+
+  return (
+    <>
+      {onExpand && (
+        <GlassOverIframeButton
+          iframeRef={iframeRef}
+          ariaLabel="Expand canvas"
+          title="Expand"
+          onClick={onExpand}
+          style={{ position: 'absolute', right: 16, top: 16, zIndex: 10 }}
+          {...glassProps}
+        >
+          <Maximize2 size={iconSize} strokeWidth={2} aria-hidden />
+        </GlassOverIframeButton>
+      )}
+
+      {onClose && (
+        <GlassOverIframeButton
+          iframeRef={iframeRef}
+          ariaLabel="Close fullscreen"
+          title="Close (Esc)"
+          onClick={onClose}
+          style={{ position: 'absolute', right: 20, top: 20, zIndex: 10 }}
+          {...glassProps}
+        >
+          <X size={iconSize} strokeWidth={2} aria-hidden />
+        </GlassOverIframeButton>
+      )}
+
+      <GlassOverIframeButton
+        iframeRef={iframeRef}
+        ariaLabel="Reset view"
+        title="Reset view (0)"
+        onClick={goHome}
+        style={{
+          position: 'absolute',
+          right: onClose ? 20 : 16,
+          bottom: onClose ? 20 : 16,
+          zIndex: 10,
+        }}
+        {...glassProps}
+      >
+        <Navigation
+          size={iconSize}
+          strokeWidth={2}
+          aria-hidden
+          // Optical center: arrow mass sits toward the tip (top-right)
+          style={{
+            display: 'block',
+            transform: `translate(${-iconSize * 0.06}px, ${iconSize * 0.06}px)`,
+          }}
+        />
+      </GlassOverIframeButton>
+    </>
+  );
+}
 
 export default function PokemonCanvasWindow() {
   const [expanded, setExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const inlineIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const expandedIframeRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -34,24 +149,20 @@ export default function PokemonCanvasWindow() {
 
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%', overflow: 'hidden' }}>
+      <EmojiPointer />
+
       <iframe
+        ref={inlineIframeRef}
         title="Pokémon cards canvas"
         src={CANVAS_SRC}
         loading="lazy"
         style={{ position: 'absolute', inset: 0, height: '100%', width: '100%', border: 0, display: 'block' }}
       />
 
-      <GlassButton
-        frost
-        radius="pill"
-        ariaLabel="Expand canvas"
-        title="Expand"
-        onClick={() => setExpanded(true)}
-        style={{ position: 'absolute', right: 16, top: 16, width: 40, height: 40, zIndex: 10 }}
-        contentClassName="text-white/90"
-      >
-        <Maximize2 size={18} strokeWidth={2} aria-hidden />
-      </GlassButton>
+      <CanvasChrome
+        iframeRef={inlineIframeRef}
+        onExpand={() => setExpanded(true)}
+      />
 
       {mounted && expanded &&
         createPortal(
@@ -81,28 +192,24 @@ export default function PokemonCanvasWindow() {
                 height: '92vh',
                 borderRadius: 24,
                 overflow: 'hidden',
-                background: '#07070b',
+                background: '#000000',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 boxShadow: '0 40px 120px -20px rgba(0, 0, 0, 0.8)',
               }}
             >
+              <EmojiPointer />
+
               <iframe
+                ref={expandedIframeRef}
                 title="Pokémon cards canvas (fullscreen)"
                 src={CANVAS_SRC}
                 style={{ position: 'absolute', inset: 0, height: '100%', width: '100%', border: 0, display: 'block' }}
               />
 
-              <GlassButton
-                frost
-                radius="pill"
-                ariaLabel="Close fullscreen"
-                title="Close (Esc)"
-                onClick={() => setExpanded(false)}
-                style={{ position: 'absolute', right: 20, top: 20, width: 44, height: 44, zIndex: 10 }}
-                contentClassName="text-white/90"
-              >
-                <X size={20} strokeWidth={2} aria-hidden />
-              </GlassButton>
+              <CanvasChrome
+                iframeRef={expandedIframeRef}
+                onClose={() => setExpanded(false)}
+              />
             </div>
           </div>,
           document.body,

@@ -3,22 +3,20 @@
 /**
  * useGlassRefraction — the engine.
  *
- * This is the part that MUST NOT be re-derived by hand. It generates the
- * displacement map and manages the SVG filter with every cross-browser fix
- * baked in. Consume it through <GlassSurface>; you should rarely touch it.
+ * Generates the displacement map and manages the SVG filter with every
+ * cross-browser fix baked in. Consume it through <GlassSurface>.
  *
- * What it guarantees (the things that separate real glass from a blur):
- *   - The map is delivered as a blob: URL, never a data: URI (Safari rejects
- *     data: URIs inside feImage and silently collapses to flat frost).
- *   - A fresh filter id on every rebuild (Safari caches filter output by id and
- *     would otherwise freeze the effect on the first frame).
- *   - The map is computed with four-fold symmetry (a quarter of the pixels,
- *     mirrored) so it stays inside the frame budget on resize.
- *   - color-interpolation-filters is forced to sRGB by the consumer (see
- *     GlassSurface) so the map means what it says.
+ * Guarantees:
+ *   - Map as blob: URL (never data: — Safari rejects data: in feImage)
+ *   - Fresh filter id every rebuild (Safari caches by id)
+ *   - Four-fold symmetry for map compute cost
+ *   - color-interpolation-filters forced to sRGB by GlassSurface
  *
- * It does NOT apply a blur. Blur is not glass. If you find yourself adding
- * backdrop-filter: blur() to "fix" the look, stop: that is the frost bug.
+ * Optics encoded in the map:
+ *   - R/G = displacement (curvature + splay shape the field)
+ *   - B   = specular mask (from surface normal · light direction)
+ *
+ * It does NOT apply a blur. Blur is not glass.
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -26,9 +24,14 @@ import { useEffect, useRef, useState } from 'react';
 export interface GlassGeometry {
   /** Corner radius in px, or 'pill' for a fully rounded capsule. */
   radius?: number | 'pill';
-  /** Bevel band width as a fraction of min(width, height). 0.05–0.5. The band
-   *  is where the bend lives; the flat centre is left alone. */
+  /** Bevel band width as a fraction of min(width, height). 0.05–0.5. */
   depth?: number;
+  /** Lens profile: 0 = linear falloff (flat), 1 = spherical dome. */
+  curvature?: number;
+  /** 0 = radial (toward center), 1 = edge-perpendicular normals. */
+  splay?: number;
+  /** Specular light direction in degrees (0 = from right, 90 = from top). */
+  specularAngle?: number;
 }
 
 interface GlassState {
@@ -54,12 +57,24 @@ function clamp255(v: number): number {
   return v < 0 ? 0 : v > 255 ? 255 : v;
 }
 
+function clamp01(v: number): number {
+  return v < 0 ? 0 : v > 1 ? 1 : v;
+}
+
 /**
  * Build a rounded-rect displacement map as a blob: URL.
  * R = horizontal push, G = vertical push (128 = no movement),
- * B = edge/specular mask. Only the bevel band moves; everything else is neutral.
+ * B = specular / edge mask.
  */
-function buildMap(w: number, h: number, radius: number, depthFrac: number): Promise<string> {
+function buildMap(
+  w: number,
+  h: number,
+  radius: number,
+  depthFrac: number,
+  curvature: number,
+  splay: number,
+  specularAngleDeg: number,
+): Promise<string> {
   return new Promise((resolve) => {
     const canvas = document.createElement('canvas');
     canvas.width = w;
@@ -82,12 +97,18 @@ function buildMap(w: number, h: number, radius: number, depthFrac: number): Prom
     const qh = Math.ceil(h / 2);
     const eps = 1;
 
-    const write = (X: number, Y: number, dispX: number, dispY: number, mask: number) => {
+    const curv = clamp01(curvature);
+    const spl = clamp01(splay);
+    const lightAngle = (specularAngleDeg * Math.PI) / 180;
+    const lightX = Math.cos(lightAngle);
+    const lightY = -Math.sin(lightAngle); // CSS/y-down: 90° = light from top
+
+    const write = (X: number, Y: number, dispX: number, dispY: number, spec: number) => {
       if (X >= w || Y >= h) return;
       const idx = (Y * w + X) * 4;
       data[idx] = clamp255(128 + dispX * 127);
       data[idx + 1] = clamp255(128 + dispY * 127);
-      data[idx + 2] = clamp255(128 + mask * 127);
+      data[idx + 2] = clamp255(spec * 255);
       data[idx + 3] = 255;
     };
 
@@ -100,26 +121,43 @@ function buildMap(w: number, h: number, radius: number, depthFrac: number): Prom
 
         let dispX = 0;
         let dispY = 0;
-        let mask = 0;
+        let spec = 0;
 
         if (edge >= 0 && edge < bevel) {
-          const t = edge / bevel; // 0 at the rim, 1 at the inner end of the band
-          const m = Math.pow(1 - t, 1.6); // strongest right at the rim
-          // Surface normal from the SDF gradient (points outward).
+          const t = edge / bevel; // 0 at rim, 1 at inner end of band
+
+          // Curvature: blend linear falloff → spherical dome profile
+          const linear = 1 - t;
+          const spherical = Math.sqrt(Math.max(0, 1 - t * t));
+          const m = (1 - curv) * linear + curv * spherical;
+
+          // Surface normal from SDF (outward)
           const gx = sdRoundRect(px + eps, py, hw, hh, r) - sdRoundRect(px - eps, py, hw, hh, r);
           const gy = sdRoundRect(px, py + eps, hw, hh, r) - sdRoundRect(px, py - eps, hw, hh, r);
           const gl = Math.hypot(gx, gy) || 1;
-          dispX = (gx / gl) * m;
-          dispY = (gy / gl) * m;
-          mask = m;
+          const nx = gx / gl;
+          const ny = gy / gl;
+
+          // Splay: blend radial (center-out) with edge-perpendicular normals
+          const rl = Math.hypot(px, py) || 1;
+          const rx = px / rl;
+          const ry = py / rl;
+          const dx = (1 - spl) * rx + spl * nx;
+          const dy = (1 - spl) * ry + spl * ny;
+          const dl = Math.hypot(dx, dy) || 1;
+
+          dispX = (dx / dl) * m;
+          dispY = (dy / dl) * m;
+
+          // Specular: how much the outward normal faces the light
+          const ndotl = Math.max(0, nx * lightX + ny * lightY);
+          spec = Math.pow(ndotl, 1.8) * m;
         }
 
-        // Four-fold symmetry: write this pixel into all four quadrants,
-        // flipping X across the vertical axis and Y across the horizontal.
-        write(x, y, dispX, dispY, mask);
-        write(w - 1 - x, y, -dispX, dispY, mask);
-        write(x, h - 1 - y, dispX, -dispY, mask);
-        write(w - 1 - x, h - 1 - y, -dispX, -dispY, mask);
+        write(x, y, dispX, dispY, spec);
+        write(w - 1 - x, y, -dispX, dispY, spec);
+        write(x, h - 1 - y, dispX, -dispY, spec);
+        write(w - 1 - x, h - 1 - y, -dispX, -dispY, spec);
       }
     }
 
@@ -129,13 +167,19 @@ function buildMap(w: number, h: number, radius: number, depthFrac: number): Prom
         resolve('');
         return;
       }
-      resolve(URL.createObjectURL(blob)); // blob URL, never a data: URI
+      resolve(URL.createObjectURL(blob));
     }, 'image/png');
   });
 }
 
 export function useGlassRefraction(geom: GlassGeometry = {}) {
-  const { radius = 'pill', depth = 0.22 } = geom;
+  const {
+    radius = 'pill',
+    depth = 0.22,
+    curvature = 0.4,
+    splay = 1,
+    specularAngle = 45,
+  } = geom;
   const ref = useRef<HTMLElement | null>(null);
   const urlRef = useRef<string>('');
   const [state, setState] = useState<GlassState>({
@@ -156,7 +200,7 @@ export function useGlassRefraction(geom: GlassGeometry = {}) {
       const width = Math.max(8, Math.round(rect.width));
       const height = Math.max(8, Math.round(rect.height));
       const rad = radius === 'pill' ? Math.min(width, height) / 2 : radius;
-      const url = await buildMap(width, height, rad, depth);
+      const url = await buildMap(width, height, rad, depth, curvature, splay, specularAngle);
       if (cancelled) {
         if (url) URL.revokeObjectURL(url);
         return;
@@ -164,7 +208,7 @@ export function useGlassRefraction(geom: GlassGeometry = {}) {
       if (urlRef.current) URL.revokeObjectURL(urlRef.current);
       urlRef.current = url;
       setState({
-        filterId: `glass-${++glassCounter}`, // fresh id every rebuild (Safari)
+        filterId: `glass-${++glassCounter}`,
         mapUrl: url,
         width,
         height,
@@ -180,7 +224,7 @@ export function useGlassRefraction(geom: GlassGeometry = {}) {
       ro.disconnect();
       if (urlRef.current) URL.revokeObjectURL(urlRef.current);
     };
-  }, [radius, depth]);
+  }, [radius, depth, curvature, splay, specularAngle]);
 
   return { ref, ...state };
 }

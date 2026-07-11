@@ -2,62 +2,107 @@
 
 /**
  * GlassButton / GlassPill — thin wrappers over GlassSurface.
- *
- * Both need a `refract` source (a copy of what is behind them) to be real glass.
- * If they sit over an iframe/video you cannot sample, pass `frost` and accept the
- * frosted look. See references/backdrop-access.md.
  */
 
-import { CSSProperties, ReactNode } from 'react';
+import { CSSProperties, ReactNode, forwardRef } from 'react';
 import { GlassSurface } from './GlassSurface';
 
 interface CommonProps {
   children: ReactNode;
-  /** Copy of the background to bend (DOM you control). Omit only with `frost`. */
   refract?: ReactNode;
   frost?: boolean;
   className?: string;
   contentClassName?: string;
   style?: CSSProperties;
-  /** Strength of refraction. Buttons/pills carry labels, so keep this low. */
   scale?: number;
+  strength?: number;
   chroma?: number;
   rim?: number;
   tint?: string;
+  depth?: number;
+  blur?: number;
+  curvature?: number;
+  splay?: number;
+  glow?: number;
+  specularAngle?: number;
+  borderWidth?: number;
+  borderAngle?: number;
+  borderColorStart?: string;
+  borderColorMiddle?: string;
+  borderColorEnd?: string;
+  borderOpacityStart?: number;
+  borderOpacityMiddle?: number;
+  borderOpacityEnd?: number;
+  borderMiddleStop?: number;
 }
 
 interface GlassButtonProps extends CommonProps {
   onClick?: () => void;
   ariaLabel?: string;
   title?: string;
-  /** 'pill' for a capsule, or a px radius. 'circle' handled by equal w/h + pill. */
   radius?: number | 'pill';
 }
 
-export function GlassButton({
-  children,
-  refract,
-  frost,
-  onClick,
-  ariaLabel,
-  title,
-  radius = 'pill',
-  scale = 8,
-  chroma = 0.18,
-  rim = 0.9,
-  tint = 'rgba(255,255,255,0.07)',
-  className,
-  contentClassName,
-  style,
-}: GlassButtonProps) {
+export const GlassButton = forwardRef<HTMLElement, GlassButtonProps>(function GlassButton(
+  {
+    children,
+    refract,
+    frost,
+    onClick,
+    ariaLabel,
+    title,
+    radius = 'pill',
+    scale = 8,
+    strength,
+    chroma = 0.18,
+    rim = 0.9,
+    tint = 'rgba(255,255,255,0.07)',
+    depth,
+    blur,
+    curvature,
+    splay,
+    glow,
+    specularAngle,
+    borderWidth,
+    borderAngle,
+    borderColorStart,
+    borderColorMiddle,
+    borderColorEnd,
+    borderOpacityStart,
+    borderOpacityMiddle,
+    borderOpacityEnd,
+    borderMiddleStop,
+    className,
+    contentClassName,
+    style,
+  },
+  ref,
+) {
   return (
     <GlassSurface
+      ref={ref}
       as="button"
       radius={radius}
       scale={scale}
+      strength={strength}
       chroma={chroma}
       rim={rim}
       tint={tint}
+      depth={depth}
+      blur={blur}
+      curvature={curvature}
+      splay={splay}
+      glow={glow}
+      specularAngle={specularAngle}
+      borderWidth={borderWidth}
+      borderAngle={borderAngle}
+      borderColorStart={borderColorStart}
+      borderColorMiddle={borderColorMiddle}
+      borderColorEnd={borderColorEnd}
+      borderOpacityStart={borderOpacityStart}
+      borderOpacityMiddle={borderOpacityMiddle}
+      borderOpacityEnd={borderOpacityEnd}
+      borderMiddleStop={borderMiddleStop}
       refract={refract}
       frost={frost}
       onClick={onClick}
@@ -68,6 +113,9 @@ export function GlassButton({
         cursor: 'pointer',
         border: 'none',
         padding: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         boxShadow: '0 10px 28px rgba(0,0,0,0.28)',
         transition: 'transform 150ms ease',
         ...style,
@@ -75,22 +123,34 @@ export function GlassButton({
     >
       <span
         className={contentClassName}
-        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          lineHeight: 0,
+        }}
       >
         {children}
       </span>
     </GlassSurface>
   );
-}
+});
 
 export function GlassPill({
   children,
   refract,
   frost,
   scale = 7,
+  strength,
   chroma = 0.16,
   rim = 0.85,
   tint = 'rgba(255,255,255,0.07)',
+  depth,
+  blur,
+  curvature,
+  splay,
+  glow,
+  specularAngle,
   className,
   contentClassName,
   style,
@@ -99,9 +159,16 @@ export function GlassPill({
     <GlassSurface
       radius="pill"
       scale={scale}
+      strength={strength}
       chroma={chroma}
       rim={rim}
       tint={tint}
+      depth={depth}
+      blur={blur}
+      curvature={curvature}
+      splay={splay}
+      glow={glow}
+      specularAngle={specularAngle}
       refract={refract}
       frost={frost}
       className={className}

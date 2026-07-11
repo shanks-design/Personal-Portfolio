@@ -6,8 +6,8 @@
 
 <style>
   :root{
-    --void-0:#07070b;
-    --void-1:#0c0c14;
+    --void-0:#000000;
+    --void-1:#000000;
     --ink:#ecebf3;
     --muted:#807f8d;
     --faint:#56555f;
@@ -26,7 +26,7 @@
 
   html,body{height:100%;margin:0}
   body{
-    background:var(--void-0);
+    background:#000000;
     color:var(--ink);
     font-family:var(--ui);
     overflow:hidden;
@@ -42,8 +42,7 @@
   #stage{
     position:fixed;inset:0;
     overflow:hidden;
-    background:
-      radial-gradient(120% 120% at 50% 35%, var(--void-1) 0%, var(--void-0) 62%, #050507 100%);
+    background:#000000;
     cursor:grab;
     touch-action:none;
     user-select:none;
@@ -51,21 +50,6 @@
   }
   #stage.grabbing{cursor:grabbing}
   #stage.grabbing .card{cursor:grabbing}
-
-  #stars{
-    position:absolute;inset:-50px;
-    background-repeat:repeat;
-    opacity:.55;
-    pointer-events:none;
-    will-change:background-position;
-  }
-
-  #stage::after{
-    content:"";position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(130% 100% at 50% 0%, rgba(154,140,255,.07), transparent 42%),
-               radial-gradient(150% 120% at 50% 100%, rgba(0,0,0,.55), transparent 55%);
-    z-index:5;
-  }
 
   #world{
     position:absolute;top:0;left:0;
@@ -106,7 +90,7 @@
   }
   .card.loaded img{opacity:1;transform:scale(1)}
 
-  .card:hover, .card:focus-visible{outline:none;transform:translateZ(0) scale(1.045)}
+  .card:hover, .card:focus-visible{outline:none;transform:translateZ(0) scale(1.02)}
 
   /* while panning/zooming, neutralise the hover scale so cards sliding under a stationary
      cursor don't flicker. Hit-testing stays intact; restored ~140ms after motion stops. */
@@ -143,6 +127,9 @@
   #home:hover{color:var(--ink);background:rgba(255,255,255,.06);border-color:var(--moon-dim)}
   #home:focus-visible{outline:2px solid var(--moon);outline-offset:2px}
 
+  /* Parent React chrome owns home/expand — hide native button when embedded. */
+  html.chrome-off #home{display:none !important}
+
   @media (prefers-reduced-motion:reduce){
     .card{transition:opacity .2s ease}
     .card img{transition:opacity .3s ease}
@@ -150,7 +137,6 @@
 </style>
 
 <div id="stage">
-  <div id="stars"></div>
   <div id="world"></div>
 </div>
 
@@ -166,14 +152,15 @@
   var N = NAMES.length;
 
   var prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var chromeOff = /(?:\?|&)chrome=0(?:&|$)/.test(location.search);
+  if (chromeOff) document.documentElement.classList.add("chrome-off");
 
   var stage = document.getElementById("stage");
   var world = document.getElementById("world");
-  var stars = document.getElementById("stars");
 
   // ---------- infinite grid model ----------
-  var CW=240, CH=335, GX=30, GY=34;
-  var cellW=CW+GX, cellH=CH+GY;   // 270 x 369
+  var CW=240, CH=335, GX=52, GY=56;
+  var cellW=CW+GX, cellH=CH+GY;   // 292 x 391
   var COLS=12, ROWS=10;           // pattern period (COLS even -> seamless brick seams)
   var HALF=cellH/2;
   var TILE_W=COLS*cellW, TILE_H=ROWS*cellH;
@@ -247,9 +234,11 @@
   }
   function apply(){
     world.style.transform = "translate3d("+st.x+"px,"+st.y+"px,0) scale("+st.s+")";
-    stars.style.backgroundPosition = (st.x*0.22)+"px "+(st.y*0.22)+"px";
     markMoving();
     reconcile();
+    if (chromeOff && window.parent && window.parent !== window) {
+      try { window.parent.postMessage({ type: "pb-canvas:frame" }, "*"); } catch (_) {}
+    }
   }
 
   // ---------- animation ----------
@@ -385,20 +374,6 @@
     }
   });
 
-  // ---------- starfield tile ----------
-  (function buildStars(){
-    var c=document.createElement("canvas"); c.width=c.height=520;
-    var g=c.getContext("2d");
-    for(var i=0;i<150;i++){
-      var x=Math.random()*520, y=Math.random()*520, r=Math.random()*1.25+0.2;
-      var a=Math.random()*0.5+0.06;
-      g.beginPath(); g.arc(x,y,r,0,6.283);
-      g.fillStyle= Math.random()>0.82 ? "rgba(168,150,255,"+a+")" : "rgba(255,255,255,"+a+")";
-      g.fill();
-    }
-    stars.style.backgroundImage="url("+c.toDataURL()+")";
-  })();
-
   // ---------- resize + intro ----------
   function syncVP(){ vw=window.innerWidth||document.documentElement.clientWidth||vw||1280;
                      vh=window.innerHeight||document.documentElement.clientHeight||vh||800; }
@@ -407,6 +382,11 @@
   function recenterHome(){ var s=homeScale(); centerOn(homeX, homeY, s); lastRange=""; apply(); }
   function goHome(){ exitFocus(); var hs=homeScale(); animateTo(vw/2-homeX*hs, vh/2-homeY*hs, hs, 620); }
   document.getElementById("home").addEventListener("click", function(e){ e.stopPropagation(); goHome(); });
+
+  window.addEventListener("message", function(e){
+    if (!e || !e.data || e.data.type !== "pb-canvas:home") return;
+    goHome();
+  });
 
   window.addEventListener("resize",function(){
     syncVP();

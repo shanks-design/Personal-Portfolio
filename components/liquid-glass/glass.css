@@ -18,6 +18,11 @@
 .glass-content {
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 /* Reduced transparency: the OS-level "I can't read text on glass" switch.

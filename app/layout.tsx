@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import DialKitProvider from "@/components/DialKitProvider";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -53,6 +54,7 @@ export default function RootLayout({
       </head>
       <body className="font-runde antialiased">
         {children}
+        <DialKitProvider />
       </body>
     </html>
   );

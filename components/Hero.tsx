@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { TextAnimateByLine, type LineSegment } from '@/components/TextAnimate';
 
@@ -59,20 +58,12 @@ export default function Hero() {
       <div className="w-full max-w-[1080px] mx-auto mt-0">
         <TextAnimateByLine
           lines={HERO_LINES}
-          delay={0}
-          duration={0.5}
-          stagger={0.1}
           blockLines
           className="text-[40px] leading-[64px] tracking-[-0.03em] text-gray-900 font-runde font-normal"
           as="div"
         />
         <div className="hidden mt-10 sm:mt-12 flex items-center gap-3">
-          <motion.span
-            className="inline-flex items-center"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.42, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
+          <span className="inline-flex items-center">
             <Image
               src="/wave-emoji.svg"
               alt="Wave"
@@ -80,7 +71,7 @@ export default function Hero() {
               height={32}
               className="inline-block"
             />
-          </motion.span>
+          </span>
           <a
             href="#contact"
             onClick={(e) => {
@@ -93,33 +84,14 @@ export default function Hero() {
             className="text-[28px] sm:text-[32px] font-semibold text-gray-900 hover:text-gray-700 transition-colors font-runde inline-block tracking-[-0.03em]"
             style={{ height: '44px', lineHeight: '44px' }}
           >
-            {'Get in touch'.split('').map((char, i) => (
-              <motion.span
-                key={i}
-                className="inline-block"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.4,
-                  delay: 0.42 + (i + 1) * 0.03,
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                }}
-              >
-                {char === ' ' ? '\u00A0' : char}
-              </motion.span>
-            ))}
+            Get in touch
           </a>
         </div>
         <div
           className="relative mt-[-8px] wallet-container cursor-pointer"
           style={{ width: '357px', height: '209px' }}
         >
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 1.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
+          <div className="absolute inset-0">
             <div className="wallet-logos absolute top-0 left-0 right-0 flex items-center justify-center gap-3">
               {WALLET_LOGOS.map((logo, index) => {
                 const image = (
@@ -176,7 +148,7 @@ export default function Hero() {
                 priority
               />
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
