@@ -1,0 +1,427 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pokémon Cards &middot; Infinite Canvas</title>
+
+<h2 class="sr-only">An endless, pannable and zoomable canvas of Pokémon cards. The cards tile infinitely in every direction. Drag to pan, scroll to move, pinch or Ctrl-scroll to zoom, and click a card to focus it.</h2>
+
+<style>
+  :root{
+    --void-0:#07070b;
+    --void-1:#0c0c14;
+    --ink:#ecebf3;
+    --muted:#807f8d;
+    --faint:#56555f;
+    --hair:rgba(255,255,255,.09);
+    --hair-2:rgba(255,255,255,.05);
+    --moon:#9a8cff;
+    --moon-dim:rgba(154,140,255,.5);
+    --plate:rgba(16,16,22,.72);
+    --card-w:240px;
+    --card-h:335px;
+    --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+
+  *{box-sizing:border-box}
+
+  html,body{height:100%;margin:0}
+  body{
+    background:var(--void-0);
+    color:var(--ink);
+    font-family:var(--ui);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  .sr-only{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+
+  #stage{
+    position:fixed;inset:0;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 120% at 50% 35%, var(--void-1) 0%, var(--void-0) 62%, #050507 100%);
+    cursor:grab;
+    touch-action:none;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  #stage.grabbing{cursor:grabbing}
+
+  #stars{
+    position:absolute;inset:-50px;
+    background-repeat:repeat;
+    opacity:.55;
+    pointer-events:none;
+    will-change:background-position;
+  }
+
+  #stage::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(130% 100% at 50% 0%, rgba(154,140,255,.07), transparent 42%),
+               radial-gradient(150% 120% at 50% 100%, rgba(0,0,0,.55), transparent 55%);
+    z-index:5;
+  }
+
+  #world{
+    position:absolute;top:0;left:0;
+    transform-origin:0 0;
+    will-change:transform;
+    z-index:3;
+  }
+
+  .card{
+    position:absolute;
+    width:var(--card-w);height:var(--card-h);
+    padding:0;border:0;background:none;
+    border-radius:16px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .42s cubic-bezier(.22,.61,.36,1), filter .42s ease, opacity .42s ease;
+  }
+  .card .frame{
+    position:absolute;inset:0;
+    border-radius:16px;
+    overflow:hidden;
+    background:#13131c;
+    box-shadow:0 1px 0 rgba(255,255,255,.05) inset,
+               0 18px 40px -22px rgba(0,0,0,.9);
+    transition:box-shadow .42s ease;
+  }
+  .card .frame::before{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(135deg,#15151f,#0e0e16 60%);
+    opacity:1;transition:opacity .6s ease;
+  }
+  .card.loaded .frame::before{opacity:0}
+  .card img{
+    position:absolute;inset:0;
+    width:100%;height:100%;object-fit:cover;
+    opacity:0;transform:scale(1.02);
+    transition:opacity .7s ease, transform .7s ease;
+  }
+  .card.loaded img{opacity:1;transform:scale(1)}
+
+  .card:hover, .card:focus-visible{outline:none;transform:translateZ(0) scale(1.045)}
+
+  /* while panning/zooming, neutralise the hover scale so cards sliding under a stationary
+     cursor don't flicker. Hit-testing stays intact; restored ~140ms after motion stops. */
+  #stage.moving .card:hover, #stage.moving .card:focus-visible{transform:none}
+
+  /* focus / spotlight */
+  #stage.focusing .card{opacity:.14;filter:saturate(.55) brightness(.7)}
+  #stage.focusing .card.is-focus{opacity:1;filter:none}
+  #stage.focusing .card.is-focus .frame{
+    box-shadow:0 0 0 1px var(--moon-dim),
+               0 40px 90px -20px rgba(0,0,0,1),
+               0 0 120px -10px rgba(154,140,255,.55);
+  }
+  #stage.focusing .card:hover{transform:none}
+  #stage.focusing .card.is-focus:hover{transform:none}
+
+  .chrome{position:fixed;z-index:20}
+
+  /* ---- reset / home button ---- */
+  #home{
+    right:22px;bottom:22px;
+    display:grid;place-items:center;
+    width:44px;height:44px;
+    background:var(--plate);
+    border:1px solid var(--hair);
+    border-radius:999px;
+    color:var(--muted);cursor:pointer;
+    backdrop-filter:blur(16px) saturate(1.25);
+    -webkit-backdrop-filter:blur(16px) saturate(1.25);
+    box-shadow:0 12px 40px -14px rgba(0,0,0,.7);
+    transition:color .18s ease, background .18s ease, border-color .18s ease;
+  }
+  #home svg{width:18px;height:18px}
+  #home:hover{color:var(--ink);background:rgba(255,255,255,.06);border-color:var(--moon-dim)}
+  #home:focus-visible{outline:2px solid var(--moon);outline-offset:2px}
+
+  @media (prefers-reduced-motion:reduce){
+    .card{transition:opacity .2s ease}
+    .card img{transition:opacity .3s ease}
+  }
+</style>
+
+<div id="stage">
+  <div id="stars"></div>
+  <div id="world"></div>
+</div>
+
+<button id="home" class="chrome" title="Reset view (0)" aria-label="Reset view">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5.5 9.5V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5"></path></svg>
+</button>
+
+<script>
+(function(){
+  "use strict";
+  function imgSrc(n){ return "cards/card-" + n + ".jpg"; }
+  var NAMES = ["Card 1", "Card 2", "Card 3", "Card 4", "Card 5", "Card 6", "Card 7", "Card 8", "Card 9", "Card 10", "Card 11", "Card 12", "Card 13", "Card 14", "Card 15", "Card 16", "Card 17"];
+  var N = NAMES.length;
+
+  var prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  var stage = document.getElementById("stage");
+  var world = document.getElementById("world");
+  var stars = document.getElementById("stars");
+
+  // ---------- infinite grid model ----------
+  var CW=240, CH=335, GX=30, GY=34;
+  var cellW=CW+GX, cellH=CH+GY;   // 270 x 369
+  var COLS=12, ROWS=10;           // pattern period (COLS even -> seamless brick seams)
+  var HALF=cellH/2;
+  var TILE_W=COLS*cellW, TILE_H=ROWS*cellH;
+
+  function mod(a,b){ return ((a%b)+b)%b; }
+  function rnd(a,b){ var x=Math.sin(a*127.1+b*311.7)*43758.5453; return (x-Math.floor(x))-0.5; }
+  function cardIndexAt(c,r){ return (mod(r,ROWS)*COLS + mod(c,COLS)) % N; }
+  function cellX(c,r){ return c*cellW + rnd(c*1.3+0.5, r*2.1)*12; }
+  function cellY(c,r){ return r*cellH + (mod(c,2)?HALF:0) + rnd(c*3.7, r*1.7+9)*12; }
+
+  // Home anchor: centre of the origin tile (no cells reserved now the logo is gone).
+  var homeX=TILE_W/2, homeY=TILE_H/2;
+  function isReserved(){ return false; }
+
+  // ---------- transform state ----------
+  var st = {x:0,y:0,s:1};
+  var MIN=0.22, MAX=2.4;
+  var userTouched=false;
+  var vw = window.innerWidth, vh = window.innerHeight;
+  function clampS(s){ return Math.max(MIN, Math.min(MAX, s)); }
+  function centerOn(cx,cy,s){ st.s=s; st.x=vw/2-cx*s; st.y=vh/2-cy*s; }
+
+  // ---------- card pool + reconciliation ----------
+  var pool=[], active={};
+  var focusMode=false, focusKey=null, focusC=0, focusR=0;
+
+  function makeCard(){
+    var el=document.createElement("button");
+    el.className="card";
+    el.innerHTML='<span class="frame"><img decoding="async" alt=""></span>';
+    el._img=el.querySelector("img");
+    el._img.addEventListener("load", function(){ el.classList.add("loaded"); });
+    world.appendChild(el);
+    return el;
+  }
+  function fill(el,c,r){
+    var idx=cardIndexAt(c,r), n=idx+1;
+    el.style.left=cellX(c,r)+"px";
+    el.style.top=cellY(c,r)+"px";
+    el.dataset.c=c; el.dataset.r=r; el.dataset.i=idx;
+    if(el._idx!==idx){
+      el._idx=idx;
+      el._img.src=imgSrc(n);
+      if(el._img.complete && el._img.naturalWidth) el.classList.add("loaded");
+      el._img.alt=NAMES[idx];
+      el.setAttribute("aria-label",NAMES[idx]+", card number "+n);
+    }
+    el.classList.toggle("is-focus", focusMode && (c+","+r)===focusKey);
+  }
+
+  var lastRange="";
+  function reconcile(){
+    var s=st.s;
+    var left=-st.x/s, top=-st.y/s, right=(vw-st.x)/s, bottom=(vh-st.y)/s;
+    var c0=Math.floor(left/cellW)-1, c1=Math.ceil(right/cellW)+1;
+    var r0=Math.floor(top/cellH)-2,  r1=Math.ceil(bottom/cellH)+1;
+    var range=c0+"|"+c1+"|"+r0+"|"+r1;
+    if(range===lastRange) return;
+    lastRange=range;
+    var need={};
+    for(var c=c0;c<=c1;c++){ for(var r=r0;r<=r1;r++){ if(isReserved(c,r)) continue; need[c+","+r]=[c,r]; } }
+    for(var k in active){ if(!(k in need)){ var e=active[k]; e.style.display="none"; e.classList.remove("is-focus"); pool.push(e); delete active[k]; } }
+    for(var k2 in need){ if(!(k2 in active)){ var el=pool.pop(); if(!el) el=makeCard(); el.style.display=""; fill(el, need[k2][0], need[k2][1]); active[k2]=el; } }
+  }
+
+  var movingTimer=null;
+  function markMoving(){
+    if(!stage.classList.contains("moving")) stage.classList.add("moving");
+    if(movingTimer) clearTimeout(movingTimer);
+    movingTimer=setTimeout(function(){ stage.classList.remove("moving"); movingTimer=null; }, 140);
+  }
+  function apply(){
+    world.style.transform = "translate3d("+st.x+"px,"+st.y+"px,0) scale("+st.s+")";
+    stars.style.backgroundPosition = (st.x*0.22)+"px "+(st.y*0.22)+"px";
+    markMoving();
+    reconcile();
+  }
+
+  // ---------- animation ----------
+  var anim=null;
+  function easeOut(t){ return 1-Math.pow(1-t,3); }
+  function animateTo(tx,ty,ts,dur){
+    if(anim) cancelAnimationFrame(anim);
+    if(prefersReduced || dur===0){ st.x=tx;st.y=ty;st.s=ts; apply(); return; }
+    var sx=st.x, sy=st.y, ss=st.s, start=null;
+    function step(ts2){
+      if(start===null) start=ts2;
+      var t=Math.min(1,(ts2-start)/dur), e=easeOut(t);
+      st.x=sx+(tx-sx)*e; st.y=sy+(ty-sy)*e; st.s=ss+(ts-ss)*e;
+      apply();
+      if(t<1) anim=requestAnimationFrame(step); else anim=null;
+    }
+    anim=requestAnimationFrame(step);
+  }
+  function zoomAt(px,py,factor){
+    if(anim){cancelAnimationFrame(anim);anim=null;}
+    userTouched=true;
+    var ns=clampS(st.s*factor);
+    st.x = px - (px-st.x)*(ns/st.s);
+    st.y = py - (py-st.y)*(ns/st.s);
+    st.s = ns; apply();
+  }
+
+  // ---------- pan + pinch ----------
+  var pointers=new Map();
+  var dragging=false, moved=false, downX=0, downY=0;
+  var lastX=0,lastY=0, vX=0, vY=0, lastT=0;
+  var pinch=null, downCard=null;
+  function dist(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.hypot(dx,dy);}
+  function mid(a,b){return {x:(a.x+b.x)/2,y:(a.y+b.y)/2};}
+
+  stage.addEventListener("pointerdown",function(e){
+    userTouched=true;
+    try{ stage.setPointerCapture(e.pointerId); }catch(_){}
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    downCard = e.target.closest(".card");
+    if(pointers.size===1){
+      dragging=true; moved=false;
+      downX=lastX=e.clientX; downY=lastY=e.clientY;
+      vX=vY=0; lastT=e.timeStamp;
+      if(anim){cancelAnimationFrame(anim);anim=null;}
+      stage.classList.add("grabbing");
+    } else if(pointers.size===2){
+      var pts=[...pointers.values()];
+      pinch={d:dist(pts[0],pts[1]), m:mid(pts[0],pts[1])};
+      dragging=false;
+    }
+  });
+  stage.addEventListener("pointermove",function(e){
+    if(!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pinch && pointers.size>=2){
+      var pts=[...pointers.values()];
+      var nd=dist(pts[0],pts[1]), nm=mid(pts[0],pts[1]);
+      if(pinch.d>0) zoomAt(nm.x,nm.y, nd/pinch.d);
+      st.x += nm.x-pinch.m.x; st.y += nm.y-pinch.m.y; apply();
+      pinch.d=nd; pinch.m=nm;
+      return;
+    }
+    if(dragging){
+      var dx=e.clientX-lastX, dy=e.clientY-lastY;
+      if(Math.abs(e.clientX-downX)+Math.abs(e.clientY-downY) > 5) moved=true;
+      st.x+=dx; st.y+=dy; apply();
+      var dt=e.timeStamp-lastT;
+      if(dt>0){ vX=dx/dt*16; vY=dy/dt*16; }
+      lastX=e.clientX; lastY=e.clientY; lastT=e.timeStamp;
+    }
+  });
+  function endPointer(e){
+    if(pointers.has(e.pointerId)) pointers.delete(e.pointerId);
+    if(pointers.size<2) pinch=null;
+    if(pointers.size===0){
+      stage.classList.remove("grabbing");
+      if(dragging && !moved && downCard){
+        var cc=parseInt(downCard.dataset.c,10), rr=parseInt(downCard.dataset.r,10);
+        if(focusMode && cc===focusC && rr===focusR) exitFocus(); else focusCell(cc,rr);
+      } else if(dragging && !moved && focusMode){
+        exitFocus();
+      } else if(dragging && moved){ inertia(); }
+      dragging=false;
+    } else if(pointers.size===1){
+      var rem=[...pointers.values()][0];
+      lastX=rem.x; lastY=rem.y; dragging=true; moved=true;
+    }
+  }
+  stage.addEventListener("pointerup",endPointer);
+  stage.addEventListener("pointercancel",endPointer);
+  function inertia(){
+    if(prefersReduced || Math.hypot(vX,vY)<0.4) return;
+    function step(){
+      st.x+=vX; st.y+=vY; vX*=0.92; vY*=0.92; apply();
+      if(Math.hypot(vX,vY)>0.4) anim=requestAnimationFrame(step); else anim=null;
+    }
+    anim=requestAnimationFrame(step);
+  }
+
+  // ---------- wheel ----------
+  stage.addEventListener("wheel",function(e){
+    e.preventDefault(); userTouched=true;
+    if(anim){cancelAnimationFrame(anim);anim=null;}
+    if(e.ctrlKey || e.metaKey){ zoomAt(e.clientX,e.clientY, Math.exp(-e.deltaY*0.0022)); }
+    else { st.x-=e.deltaX; st.y-=e.deltaY; apply(); }
+  },{passive:false});
+
+  // ---------- focus / spotlight ----------
+  function focusCell(c,r){
+    focusMode=true; focusC=c; focusR=r; focusKey=c+","+r;
+    stage.classList.add("focusing");
+    for(var k in active) active[k].classList.toggle("is-focus", k===focusKey);
+    var cx=cellX(c,r)+CW/2, cy=cellY(c,r)+CH/2;
+    var ts=clampS(Math.min(Math.min(vw,vh)*0.7/CH, MAX));
+    animateTo(vw/2-cx*ts, vh/2-cy*ts, ts, 560);
+  }
+  function exitFocus(){
+    if(!focusMode) return;
+    focusMode=false; focusKey=null;
+    stage.classList.remove("focusing");
+    for(var k in active) active[k].classList.remove("is-focus");
+  }
+
+  // ---------- keyboard ----------
+  window.addEventListener("keydown",function(e){
+    var step=90;
+    switch(e.key){
+      case "Escape": if(focusMode) exitFocus(); break;
+      case "ArrowLeft": if(focusMode){focusCell(focusC-1,focusR);} else {userTouched=true;st.x+=step;apply();} break;
+      case "ArrowRight": if(focusMode){focusCell(focusC+1,focusR);} else {userTouched=true;st.x-=step;apply();} break;
+      case "ArrowUp": if(focusMode){focusCell(focusC,focusR-1);} else {userTouched=true;st.y+=step;apply();} break;
+      case "ArrowDown": if(focusMode){focusCell(focusC,focusR+1);} else {userTouched=true;st.y-=step;apply();} break;
+      case "+": case "=": zoomAt(vw/2,vh/2,1.3); break;
+      case "-": case "_": zoomAt(vw/2,vh/2,1/1.3); break;
+      case "0": goHome(); break;
+    }
+  });
+
+  // ---------- starfield tile ----------
+  (function buildStars(){
+    var c=document.createElement("canvas"); c.width=c.height=520;
+    var g=c.getContext("2d");
+    for(var i=0;i<150;i++){
+      var x=Math.random()*520, y=Math.random()*520, r=Math.random()*1.25+0.2;
+      var a=Math.random()*0.5+0.06;
+      g.beginPath(); g.arc(x,y,r,0,6.283);
+      g.fillStyle= Math.random()>0.82 ? "rgba(168,150,255,"+a+")" : "rgba(255,255,255,"+a+")";
+      g.fill();
+    }
+    stars.style.backgroundImage="url("+c.toDataURL()+")";
+  })();
+
+  // ---------- resize + intro ----------
+  function syncVP(){ vw=window.innerWidth||document.documentElement.clientWidth||vw||1280;
+                     vh=window.innerHeight||document.documentElement.clientHeight||vh||800; }
+  // on phones, back off the zoom so more of the grid fits the narrow viewport
+  function homeScale(){ return Math.max(MIN, Math.min(1, (vw-32)/560)); }
+  function recenterHome(){ var s=homeScale(); centerOn(homeX, homeY, s); lastRange=""; apply(); }
+  function goHome(){ exitFocus(); var hs=homeScale(); animateTo(vw/2-homeX*hs, vh/2-homeY*hs, hs, 620); }
+  document.getElementById("home").addEventListener("click", function(e){ e.stopPropagation(); goHome(); });
+
+  window.addEventListener("resize",function(){
+    syncVP();
+    if(focusMode){ var cx=cellX(focusC,focusR)+CW/2, cy=cellY(focusC,focusR)+CH/2;
+      var ts=clampS(Math.min(Math.min(vw,vh)*0.7/CH,MAX)); centerOn(cx,cy,ts); apply(); }
+    else if(!userTouched){ recenterHome(); }
+    else { lastRange=""; apply(); }
+  });
+
+  syncVP(); recenterHome();
+  function fixup(){ var pw=vw,ph=vh; syncVP(); if((vw!==pw||vh!==ph) && !userTouched) recenterHome(); else { lastRange=""; apply(); } }
+  requestAnimationFrame(function(){ requestAnimationFrame(fixup); });
+  setTimeout(fixup, 250);
+})();
+</script>

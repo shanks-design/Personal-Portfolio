@@ -1,0 +1,43 @@
+/* Liquid glass base + accessibility.
+   Import this ONCE in your app (e.g. in globals.css):  @import './liquid-glass/glass.css';
+   The components add these classNames so the media queries below can find them. */
+
+.glass-surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.glass-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.glass-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reduced transparency: the OS-level "I can't read text on glass" switch.
+   Drop the refraction and frost entirely; fall back to a solid, opaque surface
+   so labels sit at full contrast. Set --glass-solid per surface if you want a
+   specific fallback color. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass-refract,
+  .glass-frost {
+    display: none !important;
+  }
+  .glass-surface {
+    background: var(--glass-solid, rgba(28, 28, 30, 0.92));
+  }
+}
+
+/* Reduced motion: no springing or idle animation on moving lenses. */
+@media (prefers-reduced-motion: reduce) {
+  .glass-animated {
+    transition: none !important;
+    animation: none !important;
+  }
+}

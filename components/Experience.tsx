@@ -5,6 +5,7 @@ import { useInView } from 'framer-motion';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import useSound from 'use-sound';
+import PokemonCanvasWindow from '@/components/PokemonCanvasWindow';
 interface Experience {
   company: string;
   role: string;
@@ -847,7 +848,9 @@ export default function Experience() {
                 </div>
               )}
               {i === 3 && (
-                <div className="w-full h-full min-h-0" aria-hidden />
+                <div className="w-full h-full min-h-0">
+                  <PokemonCanvasWindow />
+                </div>
               )}
             </div>
           ))}
