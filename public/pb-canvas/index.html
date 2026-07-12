@@ -71,24 +71,30 @@
     position:absolute;inset:0;
     border-radius:16px;
     overflow:hidden;
-    background:#13131c;
-    box-shadow:0 1px 0 rgba(255,255,255,.05) inset,
-               0 18px 40px -22px rgba(0,0,0,.9);
+    background:#000;
+    /* no light inset highlight — reads as a white fringe on dark canvas */
+    box-shadow:0 18px 40px -22px rgba(0,0,0,.9);
     transition:box-shadow .42s ease;
   }
   .card .frame::before{
     content:"";position:absolute;inset:0;
-    background:linear-gradient(135deg,#15151f,#0e0e16 60%);
+    background:#000;
     opacity:1;transition:opacity .6s ease;
   }
   .card.loaded .frame::before{opacity:0}
   .card img{
     position:absolute;inset:0;
     width:100%;height:100%;object-fit:cover;
-    opacity:0;transform:scale(1.02);
-    transition:opacity .7s ease, transform .7s ease;
+    opacity:0;
+    /* Crop past baked-in JPEG white padding + subpixel AA fringe */
+    transform:scale(1.045);
+    transform-origin:center;
+    transition:opacity .7s ease;
+    -webkit-user-drag:none;
+    user-drag:none;
+    pointer-events:none;
   }
-  .card.loaded img{opacity:1;transform:scale(1)}
+  .card.loaded img{opacity:1}
 
   .card:hover, .card:focus-visible{outline:none;transform:translateZ(0) scale(1.02)}
 
@@ -190,8 +196,12 @@
   function makeCard(){
     var el=document.createElement("button");
     el.className="card";
-    el.innerHTML='<span class="frame"><img decoding="async" alt=""></span>';
+    el.draggable=false;
+    el.innerHTML='<span class="frame"><img decoding="async" alt="" draggable="false"></span>';
     el._img=el.querySelector("img");
+    el._img.draggable=false;
+    el._img.addEventListener("dragstart", function(e){ e.preventDefault(); });
+    el.addEventListener("dragstart", function(e){ e.preventDefault(); });
     el._img.addEventListener("load", function(){ el.classList.add("loaded"); });
     world.appendChild(el);
     return el;
@@ -228,9 +238,21 @@
 
   var movingTimer=null;
   function markMoving(){
-    if(!stage.classList.contains("moving")) stage.classList.add("moving");
+    var wasMoving = stage.classList.contains("moving");
+    if(!wasMoving){
+      stage.classList.add("moving");
+      if (chromeOff && window.parent && window.parent !== window) {
+        try { window.parent.postMessage({ type: "pb-canvas:moving" }, "*"); } catch (_) {}
+      }
+    }
     if(movingTimer) clearTimeout(movingTimer);
-    movingTimer=setTimeout(function(){ stage.classList.remove("moving"); movingTimer=null; }, 140);
+    movingTimer=setTimeout(function(){
+      stage.classList.remove("moving");
+      movingTimer=null;
+      if (chromeOff && window.parent && window.parent !== window) {
+        try { window.parent.postMessage({ type: "pb-canvas:idle" }, "*"); } catch (_) {}
+      }
+    }, 180);
   }
   function apply(){
     world.style.transform = "translate3d("+st.x+"px,"+st.y+"px,0) scale("+st.s+")";

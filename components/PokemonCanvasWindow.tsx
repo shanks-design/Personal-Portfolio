@@ -6,6 +6,7 @@ import { Maximize2, Navigation, X } from 'lucide-react';
 import { GlassOverIframeButton } from '@/components/liquid-glass';
 import { useGlassChromeDials } from '@/components/liquid-glass/useGlassChromeDials';
 import { Pointer } from '@/components/ui/pointer';
+import GlassTabBar from '@/components/GlassTabBar';
 
 const CANVAS_SRC = '/pb-canvas/index.html?chrome=0';
 
@@ -31,8 +32,21 @@ function CanvasChrome({
   onClose?: () => void;
 }) {
   const dials = useGlassChromeDials();
+  const [moving, setMoving] = useState(false);
   const goHome = useCallback(() => {
     postHome(iframeRef.current);
+  }, [iframeRef]);
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    const onMessage = (e: MessageEvent) => {
+      if (!e.data || typeof e.data.type !== 'string') return;
+      if (iframe && e.source && e.source !== iframe.contentWindow) return;
+      if (e.data.type === 'pb-canvas:moving') setMoving(true);
+      if (e.data.type === 'pb-canvas:idle') setMoving(false);
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
   }, [iframeRef]);
 
   const width = dials.size.width;
@@ -64,15 +78,29 @@ function CanvasChrome({
   };
   const iconSize = Math.round(Math.min(width, height) * 0.45);
 
+  const chromeStyle = {
+    pointerEvents: (moving ? 'none' : 'auto') as React.CSSProperties['pointerEvents'],
+  };
+
   return (
-    <>
+    <div
+      aria-hidden={moving}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 10,
+        pointerEvents: 'none',
+        opacity: moving ? 0 : 1,
+        transition: 'opacity 180ms ease',
+      }}
+    >
       {onExpand && (
         <GlassOverIframeButton
           iframeRef={iframeRef}
           ariaLabel="Expand canvas"
           title="Expand"
           onClick={onExpand}
-          style={{ position: 'absolute', right: 16, top: 16, zIndex: 10 }}
+          style={{ position: 'absolute', right: 16, top: 16, zIndex: 10, ...chromeStyle }}
           {...glassProps}
         >
           <Maximize2 size={iconSize} strokeWidth={2} aria-hidden />
@@ -85,7 +113,7 @@ function CanvasChrome({
           ariaLabel="Close fullscreen"
           title="Close (Esc)"
           onClick={onClose}
-          style={{ position: 'absolute', right: 20, top: 20, zIndex: 10 }}
+          style={{ position: 'absolute', right: 20, top: 20, zIndex: 10, ...chromeStyle }}
           {...glassProps}
         >
           <X size={iconSize} strokeWidth={2} aria-hidden />
@@ -102,6 +130,7 @@ function CanvasChrome({
           right: onClose ? 20 : 16,
           bottom: onClose ? 20 : 16,
           zIndex: 10,
+          ...chromeStyle,
         }}
         {...glassProps}
       >
@@ -109,14 +138,15 @@ function CanvasChrome({
           size={iconSize}
           strokeWidth={2}
           aria-hidden
-          // Optical center: arrow mass sits toward the tip (top-right)
           style={{
             display: 'block',
             transform: `translate(${-iconSize * 0.06}px, ${iconSize * 0.06}px)`,
           }}
         />
       </GlassOverIframeButton>
-    </>
+
+      <GlassTabBar style={chromeStyle} />
+    </div>
   );
 }
 

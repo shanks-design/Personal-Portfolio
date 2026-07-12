@@ -11,3 +11,5 @@ export { GlassOverIframeButton } from './GlassOverIframeButton';
 export type { GlassOverIframeButtonProps } from './GlassOverIframeButton';
 export { useGlassChromeDials } from './useGlassChromeDials';
 export type { GlassChromeDials } from './useGlassChromeDials';
+export { useGlassTabBarDials } from './useGlassTabBarDials';
+export type { GlassTabBarDials } from './useGlassTabBarDials';
