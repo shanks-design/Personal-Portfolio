@@ -1,19 +1,5 @@
-import Navigation from '@/components/Navigation';
-import Hero from '@/components/Hero';
-import SelectedWorkSection from '@/components/SelectedWorkSection';
-import AboutCanvas from '@/components/AboutCanvas';
-import Experience from '@/components/Experience';
-import Contact from '@/components/Contact';
+import HomePageFold from '@/components/HomePageFold';
 
 export default function Home() {
-  return (
-    <main className="min-h-screen">
-      <Navigation />
-      <Hero />
-      <SelectedWorkSection />
-      <AboutCanvas />
-      <Experience />
-      <Contact />
-    </main>
-  );
+  return <HomePageFold />;
 }

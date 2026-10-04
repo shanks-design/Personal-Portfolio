@@ -37,8 +37,8 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FCFCFC;
+  --foreground: #202020;
   --font-inter: "OpenRunde", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-playpen: "Playpen Sans", cursive;
   --font-caveat: "Caveat", cursive;
@@ -53,11 +53,71 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 400;
+}
+
+.meta-text {
+  font-family: OpenRunde, sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: -0.02em;
+  color: #202020;
+}
+
+/* Scale the first viewport from a 1440px Figma frame.
+   1rem = 16px at 1440px. Floor at 1024px, cap at 1800px content width. */
+html:has(.rem-page) {
+  font-size: min(calc(100vw / 90), 20px);
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  --heading-gallery-gap: 72px;
+  --gallery-flare-headroom: 48px;
+  --gallery-index-gap: 48px;
+}
+
+html:has(.rem-page) body {
+  overflow-x: hidden;
+}
+
+@media (max-width: 1023px) {
+  html:has(.rem-page) {
+    font-size: 16px;
+  }
+}
+
+/* Bruno-style 1600 context: 20rem margin/gutter, 5 columns, 11px chrome. */
+html:has(.fold-page) {
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  --fold-vw: min(100vw, 1920px);
+  --fold-rem: calc(var(--fold-vw) / 1600);
+  --fold-margin: 24px;
+  --fold-gutter: var(--fold-margin);
+  --fold-col: calc(
+    (100vw - (var(--fold-margin) * 2) - (var(--fold-gutter) * 4)) / 5
+  );
+  --fold-thumb-w: calc(56 * var(--fold-rem));
+  --fold-thumb-h: calc(59 * var(--fold-rem));
+  --fold-headline: calc(34 * var(--fold-rem));
+  --fold-pm: clamp(13px, calc(15 * var(--fold-rem)), 16px);
+}
+
+html:has(.fold-page) body {
+  overflow: hidden;
+}
+
+.meta-text-rem {
+  font-family: OpenRunde, sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: -0.02em;
+  color: #202020;
 }
 
 .font-inter {
@@ -162,8 +222,8 @@ img {
 .loader-spinner {
   width: 40px;
   height: 40px;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  border-top-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  border-top-color: rgba(0, 0, 0, 0.85);
   border-radius: 50%;
   animation: loader-spin 0.8s linear infinite;
 }
