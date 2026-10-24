@@ -36,6 +36,16 @@
   font-display: swap;
 }
 
+/* Subset of Inter Variable (rsms.me/inter) holding only the → glyph. */
+@font-face {
+  font-family: 'InterVariable';
+  src: url('/fonts/InterVariable-arrow.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2192;
+}
+
 :root {
   --background: #FCFCFC;
   --foreground: #202020;
@@ -43,6 +53,54 @@
   --font-playpen: "Playpen Sans", cursive;
   --font-caveat: "Caveat", cursive;
   color-scheme: light;
+}
+
+/* Site grid. One unit (--u) is the margin, the gutter, and the baseline.
+   Columns are fluid; everything else is a multiple of --u.
+   --px is one design pixel: 1px up to the 1440 frame, then it grows with the
+   viewport (up to 1920) so wide screens show the same composition, scaled. */
+:root {
+  --px: 1px;
+  --u: calc(var(--px) * 24);
+  --grid-cols: 12;
+  --grid-max: calc(var(--px) * 1440);
+  --text-body: calc(var(--px) * 16);
+  --text-display: calc(var(--px) * 48);
+  --grid-margin: var(--u);
+  --grid-gutter: var(--u);
+  --grid-width: min(100vw, var(--grid-max));
+  --col: calc(
+    (var(--grid-width) - var(--grid-margin) * 2 - var(--grid-gutter) * (var(--grid-cols) - 1)) /
+      var(--grid-cols)
+  );
+  --pitch: calc(var(--col) + var(--grid-gutter));
+}
+
+@media (min-width: 1441px) {
+  :root {
+    --px: min(100vw / 1440, 1920px / 1440);
+  }
+
+  /* Single-screen layouts are drawn on a 1440x900 frame: sizes also scale by height
+     so they fit the screen, while the columns keep stretching with the width. */
+  :root:has(.grid-fold) {
+    --px: min(100vw / 1440, 100dvh / 900, 1920px / 1440);
+    --grid-max: min(100vw, 1920px);
+  }
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --u: 20px;
+    --grid-cols: 8;
+  }
+}
+
+@media (max-width: 639px) {
+  :root {
+    --u: 16px;
+    --grid-cols: 4;
+  }
 }
 
 body {

@@ -57,6 +57,20 @@ const LIVE = [
     notes:
       'The original Figma frame rebuilt to its measurements: 1440px max width, 48px headline, 20px header and "previously" text, 48px rounded thumbnails, and a 10px-radius preview. Keeps the Bruno scroll on the rail.',
   },
+  {
+    step: '07',
+    title: 'New Phase type poster',
+    route: '/fold/phase',
+    notes:
+      'Inspired by the New Phase specimen: striped serif headline in four staggered, overlapping lines, bold uppercase grotesk labels, a justified credit line, and grain on warm paper. Same rail and preview.',
+  },
+  {
+    step: '08',
+    title: 'Grid, simplified fold',
+    route: '/grid/simple',
+    notes:
+      'Single screen on the 12-column grid: "Atharva." on the left, the headline on the right half, and two half-width thumbnails along the bottom. Neue Haas Grotesk Display Medium, with links and a sun icon in the header.',
+  },
 ] as const;
 
 const LOST = [

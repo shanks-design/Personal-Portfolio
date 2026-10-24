@@ -13,6 +13,7 @@ export type RailMetrics = {
   activeShift: number;
   radius: number;
   subtitleColor: string;
+  fill?: string;
 };
 
 const EASE = 'cubic-bezier(0.22, -0.01, 0.13, 0.99)';
@@ -210,6 +211,7 @@ export default function ThumbRail({
             <span
               className="block h-full w-full bg-[#E8E8E8]"
               style={{
+                backgroundColor: metrics?.fill,
                 clipPath: isOpen
                   ? `inset(${inset} round ${metrics?.radius ?? 0}px)`
                   : `inset(0px round ${metrics?.radius ?? 0}px)`,

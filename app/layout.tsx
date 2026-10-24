@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import DialKitProvider from "@/components/DialKitProvider";
+import GridOverlay from "@/components/GridOverlay";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -51,10 +52,13 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Playpen+Sans:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
+        <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://use.typekit.net/xff0bwp.css" />
       </head>
       <body className="font-runde antialiased">
         {children}
         <DialKitProvider />
+        <GridOverlay />
       </body>
     </html>
   );

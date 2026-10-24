@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import grid, { gridSpacing } from "./lib/tailwind-grid";
 
 const config: Config = {
   content: [
@@ -9,9 +10,18 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      spacing: gridSpacing,
+      lineHeight: gridSpacing,
+      fontSize: {
+        body: "var(--text-body)",
+        display: "var(--text-display)",
+      },
       fontFamily: {
         inter: ["var(--font-inter)", "sans-serif"],
+        "inter-variable": ["InterVariable", "sans-serif"],
         runde: ["OpenRunde", "sans-serif"],
+        "haas-display": ["neue-haas-grotesk-display", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        "haas-text": ["neue-haas-grotesk-text", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
       },
       colors: {
         background: "var(--background)",
@@ -44,6 +54,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [grid],
 };
 export default config;
