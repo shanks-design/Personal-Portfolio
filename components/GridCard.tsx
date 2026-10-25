@@ -7,6 +7,7 @@ export type GridCardData = {
   video?: string;
   videoWebm?: string;
   poster?: string;
+  startOffset?: number;
 };
 
 type GridCardProps = GridCardData & {
@@ -21,6 +22,7 @@ export default function GridCard({
   video,
   videoWebm,
   poster,
+  startOffset,
   height = 'h-u19',
   caption = 'split',
 }: GridCardProps) {
@@ -28,7 +30,13 @@ export default function GridCard({
     <article className={placement}>
       <div className={`${height} overflow-hidden bg-[#E2E2E2]`}>
         {video && poster ? (
-          <GridCardVideo src={video} srcWebm={videoWebm} poster={poster} label={`${title} preview`} />
+          <GridCardVideo
+            src={video}
+            srcWebm={videoWebm}
+            poster={poster}
+            label={`${title} preview`}
+            startOffset={startOffset}
+          />
         ) : (
           <div className="h-full w-full" role="img" aria-label={`${title} preview`} />
         )}

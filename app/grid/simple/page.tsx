@@ -15,7 +15,7 @@ const CARDS: readonly GridCardData[] = [
     placement: 'col-span-6 col-start-7',
     video: '/projects/anuma.mp4',
     videoWebm: '/projects/anuma.webm',
-    poster: '/projects/anuma.webp',
+    poster: '/projects/anuma.webp?v=2',
   },
 ];
 
