@@ -14,9 +14,8 @@ const CARDS: readonly GridCardData[] = [
     title: 'Anuma',
     company: 'Anuma AI',
     placement: 'col-span-6 col-start-7',
-    video: '/projects/anuma.mp4',
-    videoWebm: '/projects/anuma.webm',
-    poster: '/projects/anuma.webp?v=2',
+    video: '/projects/anuma-v3.mp4',
+    poster: '/projects/anuma-v3.webp',
   },
 ];
 

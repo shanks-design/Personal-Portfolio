@@ -69,13 +69,25 @@ const LIVE = [
     title: 'Grid, simplified fold',
     route: '/grid/simple',
     notes:
-      'Single screen on the 12-column grid with the blue Base App earnings tile as the visual anchor, Anuma on the right. Neue Haas Grotesk Display Medium.',
+      'Blue Base App earnings tile as the visual anchor, with the latest Anuma chat tile. Neue Haas Grotesk Display Medium.',
   },
   {
     step: '08b',
     title: 'Grid, simplified fold — ice tile',
     route: '/grid/simple-ice',
     notes: 'Same fold as 08, with the ice Base App tile instead of blue.',
+  },
+  {
+    step: '08c',
+    title: 'Grid, simplified fold — v2 tiles',
+    route: '/grid/simple-v2',
+    notes: 'Same fold as 08: original blue Base App tile, with the updated Anuma tile.',
+  },
+  {
+    step: '08d',
+    title: 'Grid, simplified fold — Anuma v3',
+    route: '/grid/simple-v3',
+    notes: 'Same fold as 08c, with a newer Anuma tile export. Blue Base App unchanged.',
   },
 ] as const;
 
