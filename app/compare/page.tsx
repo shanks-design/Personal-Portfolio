@@ -69,7 +69,13 @@ const LIVE = [
     title: 'Grid, simplified fold',
     route: '/grid/simple',
     notes:
-      'Single screen on the 12-column grid: "Atharva." on the left, the headline on the right half, and two half-width thumbnails along the bottom. Neue Haas Grotesk Display Medium, with links and a sun icon in the header.',
+      'Single screen on the 12-column grid with the blue Base App earnings tile as the visual anchor, Anuma on the right. Neue Haas Grotesk Display Medium.',
+  },
+  {
+    step: '08b',
+    title: 'Grid, simplified fold — ice tile',
+    route: '/grid/simple-ice',
+    notes: 'Same fold as 08, with the ice Base App tile instead of blue.',
   },
 ] as const;
 

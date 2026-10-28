@@ -28,7 +28,7 @@ export default function GridCard({
 }: GridCardProps) {
   return (
     <article className={placement}>
-      <div className={`${height} overflow-hidden bg-[#E2E2E2]`}>
+      <div className={`${video && poster ? 'aspect-video' : height} overflow-hidden bg-[#E2E2E2]`}>
         {video && poster ? (
           <GridCardVideo
             src={video}
